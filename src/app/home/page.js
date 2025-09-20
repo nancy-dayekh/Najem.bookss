@@ -57,7 +57,7 @@ export default function Home() {
   return (
     <div className="w-full">
       {/* Small Slider */}
-      <div className="w-full max-w-6xl mx-auto mb-10 rounded-lg overflow-hidden h-[250px] sm:h-[300px] relative">
+      {/* <div className="w-full max-w-6xl mx-auto mb-10 rounded-lg overflow-hidden h-[250px] sm:h-[300px] relative">
         <Slider {...settings}>
           {slides.map((src, idx) => (
             <div
@@ -75,7 +75,7 @@ export default function Home() {
             </div>
           ))}
         </Slider>
-      </div>
+      </div> */}
 
       {/* Components */}
       <NewCollection />
