@@ -9,30 +9,30 @@ export default function DisplayProducts() {
   const [selectedYears, setSelectedYears] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // Fetch products from Supabase
-  useEffect(() => {
-    async function fetchProducts() {
-      setLoading(true);
-      try {
-        let query = supabase.from("add_products").select("*").order("id", { ascending: true });
+useEffect(() => {
+  async function fetchProducts() {
+    setLoading(true);
+    try {
+      let query = supabase.from("add_products").select("*").order("id", { ascending: true });
 
-        if (selectedYears > 0) {
-          query = query.eq("years", selectedYears);
-        }
-
-        const { data, error } = await query;
-        if (error) throw error;
-
-        setProducts(data || []);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-      } finally {
-        setLoading(false);
+      if (selectedYears > 0) {
+        query = query.eq("years", selectedYears);
       }
-    }
 
-    fetchProducts();
-  }, [selectedYears]);
+      const { data, error } = await query;
+      console.log("Fetched products:", data, "Error:", error); // Debug
+      if (error) throw error;
+
+      setProducts(data || []);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchProducts();
+}, [selectedYears]);
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-10 mt-28">
