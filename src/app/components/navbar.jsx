@@ -7,6 +7,8 @@ import {
   FaPhone,
   FaEnvelope,
   FaTimes,
+  FaUser,
+  FaHeart,
 } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
@@ -15,8 +17,13 @@ import { usePathname } from "next/navigation";
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const customerName = null; // replace with actual logic
 
   const navItems = ["Home", "Products", "About", "Contact"];
+
+  const toggleMobileMenu = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
   return (
     <>
@@ -24,40 +31,40 @@ export default function Header() {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center h-20 md:h-20 px-5">
             {/* MOBILE: Menu + Logo + Icons */}
-            <div className="flex md:hidden items-center justify-between ">
-              {/* Left: Menu Button */}
-              <button
-                onClick={() => setMobileOpen(!mobileOpen)}
-                className="text-black text-2xl"
-              >
-                <FaBars />
-              </button>
+            <div className="flex items-center md:hidden w-full h-20">
+              <div className="flex items-center ">
+                <button
+                  onClick={toggleMobileMenu}
+                  className="text-black text-2xl p-0 m-0"
+                >
+                  {mobileOpen ? <FaTimes /> : <FaBars />}
+                </button>
 
-              {/* Center: Logo */}
-              <div className="flex-1 flex justify-center">
                 <Image
                   src="/images/logoo.png"
                   alt="Logo"
-                  width={110}
-                  height={50}
+                  width={100}
+                  height={40}
                   priority
-                  className="object-contain"
+                  className="block"
                 />
               </div>
 
-              {/* Right: Search + Cart */}
+              {/* Icons aligned to the end */}
               <div className="flex items-center gap-2 text-black ml-auto">
+         
                 <Link
                   href="/search"
-                  className="p-2 rounded-full hover:bg-gray-100 transition"
+                  className="hover:text-pink-500 transition-colors"
                 >
-                  <FaSearch className="text-lg text-gray-700 hover:text-pink-500 transition-colors" />
+                  <FaSearch className="text-[20px]" />
                 </Link>
+          
                 <Link
                   href="/addtocarts"
-                  className="p-2 rounded-full hover:bg-gray-100 transition"
+                  className="hover:text-pink-500 transition-colors"
                 >
-                  <FaShoppingCart className="text-lg text-gray-700 hover:text-pink-500 transition-colors" />
+                  <FaShoppingCart className="text-[20px]" />
                 </Link>
               </div>
             </div>
@@ -114,8 +121,7 @@ export default function Header() {
           <div className="md:hidden fixed top-0 left-0 h-screen w-64 bg-white z-50 shadow-xl p-6 flex flex-col transition-transform duration-300 ease-in-out">
             {/* Drawer Top: Logo + Close */}
             <div className="flex items-center justify-between mb-4">
-                    <h1 className="text-[17px] font-bold text-black">Menu</h1>
-
+              <h1 className="text-[17px] font-bold text-black">Menu</h1>
               <button
                 onClick={() => setMobileOpen(false)}
                 className="text-2xl text-black hover:text-pink-500 transition-colors"
