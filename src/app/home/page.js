@@ -113,14 +113,14 @@ export default function Home() {
       </div>
 
       {/* WhatsApp Floating Button */}
- <a
-  href="https://wa.me/96171407764"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="fixed bottom-5 right-5 z-50 w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg animate-bounce hover:scale-110 transition-transform"
->
-  <FaWhatsapp className="text-white text-2xl" />
-</a>
+      <a
+        href="https://wa.me/96171407764"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-5 right-5 z-50 w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg animate-bounce hover:scale-110 transition-transform"
+      >
+        <FaWhatsapp className="text-white text-2xl" />
+      </a>
     </div>
   );
 }
