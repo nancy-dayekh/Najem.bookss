@@ -1,9 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -22,11 +19,13 @@ export default function Home() {
     { type: "images", src: "/images/homeslider2.jpg" },
   ];
 
-  // ✅ FIX: add missing state and ref
   const [currentIndex, setCurrentIndex] = useState(0);
   const timeoutRef = useRef(null);
 
-  // Scroll animation using Tailwind utility classes
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // ✅ Scroll Animation
   const handleScrollAnimation = () => {
     const elements = document.querySelectorAll(".animate-scroll");
     elements.forEach((el) => {
@@ -41,14 +40,9 @@ export default function Home() {
     });
   };
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    // Set up scroll event listener for animations
     window.addEventListener("scroll", handleScrollAnimation);
-    handleScrollAnimation(); // Trigger once on mount
-
+    handleScrollAnimation();
     return () => window.removeEventListener("scroll", handleScrollAnimation);
   }, []);
 
@@ -59,11 +53,16 @@ export default function Home() {
     }
   }, []);
 
-  // ✅ FIX: use currentIndex properly for autoplay
+  // ✅ Autoplay logic with different delay for video
   useEffect(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    // لو السلايد الحالي فيديو نعطيه وقت أطول (مثال: 20 ثانية)
+    const delay = slides[currentIndex].type === "video" ? 20000 : 5000;
+
     timeoutRef.current = setTimeout(() => {
       setCurrentIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-    }, 5000);
+    }, delay);
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -97,17 +96,6 @@ export default function Home() {
     }
     fetchProducts();
   }, []);
-
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 4000,
-    arrows: true,
-  };
 
   return (
     <div className="w-full">
@@ -146,7 +134,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Arrows */}
         {/* Arrows */}
         <button
           onClick={prevSlide}
