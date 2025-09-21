@@ -52,14 +52,13 @@ export default function Header() {
 
               {/* Icons aligned to the end */}
               <div className="flex items-center gap-2 text-black ml-auto">
-         
                 <Link
                   href="/search"
                   className="hover:text-pink-500 transition-colors"
                 >
                   <FaSearch className="text-[20px]" />
                 </Link>
-          
+
                 <Link
                   href="/addtocarts"
                   className="hover:text-pink-500 transition-colors"
@@ -150,7 +149,7 @@ export default function Header() {
             <hr className="border-gray-200 my-4" />
 
             {/* Contact Section */}
-            <div className="text-gray-700 text-sm space-y-3">
+            <div className="text-black/70 text-sm space-y-3">
               <p className="font-semibold text-[15px]">Need help?</p>
               <div className="flex items-center gap-2 hover:text-pink-500 transition-colors cursor-pointer">
                 <FaPhone size={14} />
