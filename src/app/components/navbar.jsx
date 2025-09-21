@@ -6,6 +6,7 @@ import {
   FaShoppingCart,
   FaPhone,
   FaEnvelope,
+  FaTimes,
 } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
@@ -15,15 +16,15 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
 
-  const navItems = ["Home", "products", "About", "Contact"];
+  const navItems = ["Home", "Products", "About", "Contact"];
 
   return (
     <>
       <header className="fixed top-0 w-full bg-white z-50 shadow-md h-20">
-        <div className="max-w-7xl mx-auto ">
-          <div className="flex justify-between items-center h-20 md:h-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-center h-20 md:h-20 px-5">
             {/* Mobile Menu Icon */}
-            <div className="md:hidden flex items-center ml-5">
+            <div className="md:hidden flex items-center">
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 className="text-black text-2xl"
@@ -33,21 +34,21 @@ export default function Header() {
             </div>
 
             {/* Logo */}
-            <div className="ml-5 mb-3">
+            <div className="ml-3">
               <Image
                 src="/images/logoo.png"
                 alt="Logo"
-                width={130} // or any size that fits your design
+                width={130}
                 height={80}
-                className="mt-2 object-contain"
+                className="object-contain"
               />
             </div>
+
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-14 uppercase font-semibold text-[15px] tracking-wide mr-10">
+            <nav className="hidden md:flex items-center gap-14 uppercase font-semibold text-[15px] tracking-wide">
               {navItems.map((item) => {
                 const route = `/${item.toLowerCase()}`;
                 const isActive = pathname === route;
-
                 return (
                   <Link key={item} href={route} className="relative group">
                     <span className="text-black text-base hover:opacity-90">
@@ -64,7 +65,7 @@ export default function Header() {
             </nav>
 
             {/* Icons */}
-            <div className="flex items-center gap-4 mr-7 text-black ">
+            <div className="flex items-center gap-4 text-black">
               <Link href="/search">
                 <FaSearch className="text-lg" />
               </Link>
@@ -77,20 +78,26 @@ export default function Header() {
 
         {/* Mobile Drawer */}
         {mobileOpen && (
-          <div className="md:hidden bg-white w-64 h-screen fixed top-0 left-0 z-50 shadow-md p-5 space-y-4">
-            <button
-              onClick={() => setMobileOpen(false)}
-              className="text-black text-xl mb-4"
-            >
-              ×
-            </button>
+          <div className="md:hidden fixed top-0 left-0 h-screen w-64 bg-white z-50 shadow-xl p-6 flex flex-col justify-between transition-transform duration-300 ease-in-out">
+            
+            {/* Top: Logo + Close Button on same line */}
+            <div className="flex items-center justify-between mb-6">
+            <h1 className="text-[17px] font-bold text-black">Menu</h1>
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="text-2xl text-black hover:text-pink-500 transition-colors"
+              >
+                <FaTimes />
+              </button>
+            </div>
 
-            <ul className="space-y-4">
+            {/* Navigation Links */}
+            <ul className="flex flex-col gap-4">
               {navItems.map((item) => (
                 <li key={item}>
                   <Link
                     href={`/${item.toLowerCase()}`}
-                    className="block border-b border-gray-300 pb-2 text-black hover:text-red-600"
+                    className="flex items-center gap-3 px-4 py-2 text-[17px] font-semibold rounded-lg hover:bg-pink-50 hover:text-pink-500 transition-all"
                     onClick={() => setMobileOpen(false)}
                   >
                     {item}
@@ -99,13 +106,14 @@ export default function Header() {
               ))}
             </ul>
 
-            <div className="mt-6 text-gray-700 text-sm space-y-2">
-              <p className="ml-2 font-semibold">Need help?</p>
-              <div className="flex items-center gap-2">
+            {/* Contact / Help Section */}
+            <div className="mt-auto text-gray-700 text-sm space-y-3 border-t border-gray-200 pt-4">
+              <p className="font-semibold text-[15px]">Need help?</p>
+              <div className="flex items-center gap-2 hover:text-pink-500 transition-colors cursor-pointer">
                 <FaPhone size={14} />
                 <span>+961 71 407 764</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 hover:text-pink-500 transition-colors cursor-pointer">
                 <FaEnvelope size={14} />
                 <span>poupee.dresses1@gmail.com</span>
               </div>
