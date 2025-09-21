@@ -5,7 +5,7 @@ export default function ContactUs() {
   return (
     <div className="pt-4 pb-20 font-sans bg-white text-[#2a2a2a]">
       {/* Banner */}
-    <div className="w-full h-[200px] relative mb-6">
+      <div className="w-full h-[200px] relative mb-6">
         <Image
           src="/images/logoo.png"
           alt="Profile"

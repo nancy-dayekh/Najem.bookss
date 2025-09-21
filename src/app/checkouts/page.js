@@ -60,39 +60,57 @@ export default function Checkout() {
       2
     );
 
-  const handleSubmit = async () => {
-    if (cart.length === 0) {
-      setErrorMsg("Your cart is empty.");
-      return;
-    }
+const handleSubmit = async () => {
+  if (cart.length === 0) {
+    setErrorMsg("Your cart is empty.");
+    return;
+  }
 
-    const orderData = {
-      first_name: formData.firstName,
-      last_name: formData.lastName,
-      address: formData.address,
-      phone: formData.phone,
-      city: formData.city,
-      region: selectedCountry || "Lebanon",
-      delivery_id: shipping.id || 1,
-      product_id: cart[0]?.id, // ✅ خذ منتج واحد فقط لتجربته
-      subtotal: parseFloat(calculateSubtotal()),
-      total: parseFloat(calculateTotal()),
-    };
-
-    const { data, error } = await supabase
+  try {
+    // Insert checkout first
+    const { data: newCheckout, error: checkoutError } = await supabase
       .from("checkouts")
-      .insert([orderData]);
+      .insert([{
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        address: formData.address,
+        phone: formData.phone,
+        city: formData.city,
+        region: selectedCountry || "Lebanon",
+        delivery_id: shipping.id || 1,
+        subtotal: parseFloat(calculateSubtotal()),
+        total: parseFloat(calculateTotal()),
+      }])
+      .select("*")
+      .single();
 
-    if (!error) {
-      setSuccessMsg("Your order has been placed successfully!");
-      localStorage.removeItem("cart");
-      setCart([]);
-      setTimeout(() => (window.location.href = "/"), 3000);
-    } else {
-      console.error("Insert error:", error);
-      setErrorMsg("Failed to place order. Please try again.");
-    }
-  };
+    if (checkoutError) throw checkoutError;
+
+    // Insert all products in checkout_items
+    const itemsData = cart.map(item => ({
+      checkout_id: newCheckout.id,
+      product_id: item.id,
+      size: item.size || "", // assuming each cart item has a size
+      quantity: item.quantity,
+    }));
+
+    const { error: itemsError } = await supabase
+      .from("checkout_items")
+      .insert(itemsData);
+
+    if (itemsError) throw itemsError;
+
+    // Success
+    setSuccessMsg("Your order has been placed successfully!");
+    localStorage.removeItem("cart");
+    setCart([]);
+    setTimeout(() => (window.location.href = "/"), 3000);
+  } catch (err: any) {
+    console.error(err);
+    setErrorMsg("Failed to place order. Please try again.");
+  }
+};
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
