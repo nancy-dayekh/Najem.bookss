@@ -43,7 +43,7 @@ export default function Header() {
                 <Image
                   src="/images/logoo.png"
                   alt="Logo"
-                  width={130}
+                  width={110}
                   height={40}
                   priority
                   className="block m-0"
