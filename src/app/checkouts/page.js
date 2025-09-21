@@ -88,24 +88,26 @@ export default function Checkout() {
       // Insert checkout
       const { data: newCheckout, error: checkoutError } = await supabase
         .from("checkouts")
-        .insert([{
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          address: formData.address,
-          phone: formData.phone,
-          city: formData.city,
-          region: selectedCountry || "Lebanon",
-          delivery_id: shipping.id || 1,
-          subtotal,
-          total,
-        }])
+        .insert([
+          {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            address: formData.address,
+            phone: formData.phone,
+            city: formData.city,
+            region: selectedCountry || "Lebanon",
+            delivery_id: shipping.id || 1,
+            subtotal,
+            total,
+          },
+        ])
         .select("*")
         .single();
 
       if (checkoutError) throw checkoutError;
 
       // Insert all products
-      const itemsData = cart.map(item => ({
+      const itemsData = cart.map((item) => ({
         checkout_id: newCheckout.id,
         product_id: item.id,
         size: item.size || "",
@@ -123,10 +125,8 @@ export default function Checkout() {
       localStorage.removeItem("cart");
       setCart([]);
       setTimeout(() => (window.location.href = "/"), 3000);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Supabase insert error:", err);
-
-      // عرض أي خطأ Supabase بدقة
       const message =
         err?.message ||
         err?.details ||
@@ -134,9 +134,6 @@ export default function Checkout() {
       setErrorMsg(message);
     }
   };
-
-
-
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
