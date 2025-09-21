@@ -24,44 +24,43 @@ export default function Header() {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center h-20 md:h-20 px-5">
             {/* MOBILE: Menu + Logo + Icons */}
-        <div className="flex md:hidden items-center justify-between w-full px-4">
-  {/* Left: Menu Button */}
-  <button
-    onClick={() => setMobileOpen(!mobileOpen)}
-    className="text-black text-2xl p-2 rounded-md hover:bg-gray-100 transition"
-  >
-    <FaBars />
-  </button>
+            <div className="flex md:hidden items-center justify-between ">
+              {/* Left: Menu Button */}
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="text-black text-2xl"
+              >
+                <FaBars />
+              </button>
 
-  {/* Center: Logo */}
-  <div className="flex-1 flex justify-center">
-    <Image
-      src="/images/logoo.png"
-      alt="Logo"
-      width={110}
-      height={50}
-      priority
-      className="object-contain"
-    />
-  </div>
+              {/* Center: Logo */}
+              <div className="flex-1 flex justify-center">
+                <Image
+                  src="/images/logoo.png"
+                  alt="Logo"
+                  width={110}
+                  height={50}
+                  priority
+                  className="object-contain"
+                />
+              </div>
 
-  {/* Right: Search + Cart */}
-  <div className="flex items-center gap-2 text-black">
-    <Link
-      href="/search"
-      className="p-2 rounded-full hover:bg-gray-100 transition"
-    >
-      <FaSearch className="text-lg text-gray-700 hover:text-pink-500 transition-colors" />
-    </Link>
-    <Link
-      href="/addtocarts"
-      className="p-2 rounded-full hover:bg-gray-100 transition"
-    >
-      <FaShoppingCart className="text-lg text-gray-700 hover:text-pink-500 transition-colors" />
-    </Link>
-  </div>
-</div>
-
+              {/* Right: Search + Cart */}
+              <div className="flex items-center gap-2 text-black ml-auto">
+                <Link
+                  href="/search"
+                  className="p-2 rounded-full hover:bg-gray-100 transition"
+                >
+                  <FaSearch className="text-lg text-gray-700 hover:text-pink-500 transition-colors" />
+                </Link>
+                <Link
+                  href="/addtocarts"
+                  className="p-2 rounded-full hover:bg-gray-100 transition"
+                >
+                  <FaShoppingCart className="text-lg text-gray-700 hover:text-pink-500 transition-colors" />
+                </Link>
+              </div>
+            </div>
 
             {/* DESKTOP: Logo - Nav - Icons */}
             <div className="hidden md:flex justify-between items-center w-full">
@@ -115,13 +114,8 @@ export default function Header() {
           <div className="md:hidden fixed top-0 left-0 h-screen w-64 bg-white z-50 shadow-xl p-6 flex flex-col transition-transform duration-300 ease-in-out">
             {/* Drawer Top: Logo + Close */}
             <div className="flex items-center justify-between mb-4">
-              <Image
-                src="/images/logoo.png"
-                alt="Logo"
-                width={120}
-                height={60}
-                className="object-contain"
-              />
+                    <h1 className="text-[17px] font-bold text-black">Menu</h1>
+
               <button
                 onClick={() => setMobileOpen(false)}
                 className="text-2xl text-black hover:text-pink-500 transition-colors"
