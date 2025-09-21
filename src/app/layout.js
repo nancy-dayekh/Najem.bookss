@@ -1,7 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import NavBar from './components/navbar.jsx'
+import NavBar from './components/navbar.jsx';
 import Footer from './components/footer.jsx';
+import { FaWhatsapp } from "react-icons/fa";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -21,11 +23,21 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased relative`}
       >
-        <NavBar/>
+        <NavBar />
         {children}
-        <Footer/>
+        <Footer />
+
+        {/* WhatsApp Floating Button (all pages) */}
+        <a
+          href="https://wa.me/96171407764"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-5 right-5 z-50 w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg animate-bounce hover:scale-110 transition-transform"
+        >
+          <FaWhatsapp className="text-white text-2xl" />
+        </a>
       </body>
     </html>
   );
