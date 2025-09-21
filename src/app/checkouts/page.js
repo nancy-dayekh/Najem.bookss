@@ -59,18 +59,20 @@ export default function Checkout() {
     (parseFloat(calculateSubtotal()) + parseFloat(calculateShipping())).toFixed(
       2
     );
+  const handleSubmit = async () => {
+    if (cart.length === 0) {
+      setErrorMsg("Your cart is empty.");
+      return;
+    }
 
-const handleSubmit = async () => {
-  if (cart.length === 0) {
-    setErrorMsg("Your cart is empty.");
-    return;
-  }
+    try {
+      // تأكد من الحساب الصحيح
+      const subtotal = parseFloat(calculateSubtotal());
+      const shippingCost = parseFloat(calculateShipping());
+      const total = parseFloat((subtotal + shippingCost).toFixed(2));
 
-  try {
-    // Insert checkout first
-    const { data: newCheckout, error: checkoutError } = await supabase
-      .from("checkouts")
-      .insert([{
+      // Debug: عرض البيانات قبل الإرسال
+      console.log("Checkout Data:", {
         first_name: formData.firstName,
         last_name: formData.lastName,
         address: formData.address,
@@ -78,38 +80,62 @@ const handleSubmit = async () => {
         city: formData.city,
         region: selectedCountry || "Lebanon",
         delivery_id: shipping.id || 1,
-        subtotal: parseFloat(calculateSubtotal()),
-        total: parseFloat(calculateTotal()),
-      }])
-      .select("*")
-      .single();
+        subtotal,
+        total,
+      });
+      console.log("Cart Items:", cart);
 
-    if (checkoutError) throw checkoutError;
+      // Insert checkout
+      const { data: newCheckout, error: checkoutError } = await supabase
+        .from("checkouts")
+        .insert([{
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          address: formData.address,
+          phone: formData.phone,
+          city: formData.city,
+          region: selectedCountry || "Lebanon",
+          delivery_id: shipping.id || 1,
+          subtotal,
+          total,
+        }])
+        .select("*")
+        .single();
 
-    // Insert all products in checkout_items
-    const itemsData = cart.map(item => ({
-      checkout_id: newCheckout.id,
-      product_id: item.id,
-      size: item.size || "", // assuming each cart item has a size
-      quantity: item.quantity,
-    }));
+      if (checkoutError) throw checkoutError;
 
-    const { error: itemsError } = await supabase
-      .from("checkout_items")
-      .insert(itemsData);
+      // Insert all products
+      const itemsData = cart.map(item => ({
+        checkout_id: newCheckout.id,
+        product_id: item.id,
+        size: item.size || "",
+        quantity: item.quantity,
+      }));
 
-    if (itemsError) throw itemsError;
+      const { error: itemsError } = await supabase
+        .from("checkout_items")
+        .insert(itemsData);
 
-    // Success
-    setSuccessMsg("Your order has been placed successfully!");
-    localStorage.removeItem("cart");
-    setCart([]);
-    setTimeout(() => (window.location.href = "/"), 3000);
-  } catch (err: any) {
-    console.error(err);
-    setErrorMsg("Failed to place order. Please try again.");
-  }
-};
+      if (itemsError) throw itemsError;
+
+      setSuccessMsg("Your order has been placed successfully!");
+      setErrorMsg("");
+      localStorage.removeItem("cart");
+      setCart([]);
+      setTimeout(() => (window.location.href = "/"), 3000);
+    } catch (err: any) {
+      console.error("Supabase insert error:", err);
+
+      // عرض أي خطأ Supabase بدقة
+      const message =
+        err?.message ||
+        err?.details ||
+        "Failed to place order. Please check your input.";
+      setErrorMsg(message);
+    }
+  };
+
+
 
 
   return (
