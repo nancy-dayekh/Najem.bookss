@@ -6,6 +6,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { FaWhatsapp } from "react-icons/fa";
 
 import { supabase } from "../../../lib/supabaseClient";
 import NewCollection from "../newcollection/page";
@@ -55,7 +56,7 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       {/* Small Slider */}
       <div className="w-full max-w-6xl mx-auto mb-10 rounded-lg overflow-hidden h-[250px] sm:h-[300px] relative">
         <Slider {...settings}>
@@ -110,6 +111,16 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* WhatsApp Floating Button */}
+ <a
+  href="https://wa.me/96171407764"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="fixed bottom-5 right-5 z-50 w-16 h-16 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg animate-bounce hover:scale-110 transition-transform"
+>
+  <FaWhatsapp className="text-white text-2xl" />
+</a>
     </div>
   );
 }
