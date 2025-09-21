@@ -43,10 +43,10 @@ export default function Header() {
                 <Image
                   src="/images/logoo.png"
                   alt="Logo"
-                  width={100}
+                  width={130}
                   height={40}
                   priority
-                  className="block"
+                  className="block m-0"
                 />
               </div>
 
