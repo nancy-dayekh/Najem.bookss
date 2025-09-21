@@ -55,9 +55,8 @@ export default function Header() {
                       {item}
                     </span>
                     <span
-                      className={`absolute left-0 bottom-[-4px] w-full h-[2px] transition-all ${
-                        isActive ? "bg-pink-400" : "group-hover:bg-pink-400"
-                      }`}
+                      className={`absolute left-0 bottom-[-4px] w-full h-[2px] transition-all ${isActive ? "bg-pink-400" : "group-hover:bg-pink-400"
+                        }`}
                     ></span>
                   </Link>
                 );
@@ -77,12 +76,13 @@ export default function Header() {
         </div>
 
         {/* Mobile Drawer */}
+        {/* Mobile Drawer */}
         {mobileOpen && (
-          <div className="md:hidden fixed top-0 left-0 h-screen w-64 bg-white z-50 shadow-xl p-6 flex flex-col justify-between transition-transform duration-300 ease-in-out">
-            
+          <div className="md:hidden fixed top-0 left-0 h-screen w-64 bg-white z-50 shadow-xl p-6 flex flex-col transition-transform duration-300 ease-in-out">
+
             {/* Top: Logo + Close Button on same line */}
-            <div className="flex items-center justify-between mb-6">
-            <h1 className="text-[17px] font-bold text-black">Menu</h1>
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-[17px] font-bold text-black">Menu</h1>
               <button
                 onClick={() => setMobileOpen(false)}
                 className="text-2xl text-black hover:text-pink-500 transition-colors"
@@ -91,8 +91,11 @@ export default function Header() {
               </button>
             </div>
 
+            {/* Horizontal line under top */}
+            <hr className="border-gray-200 mb-4" />
+
             {/* Navigation Links */}
-            <ul className="flex flex-col gap-4">
+            <ul className="flex flex-col gap-3">
               {navItems.map((item) => (
                 <li key={item}>
                   <Link
@@ -106,8 +109,11 @@ export default function Header() {
               ))}
             </ul>
 
-            {/* Contact / Help Section */}
-            <div className="mt-auto text-gray-700 text-sm space-y-3 border-t border-gray-200 pt-4">
+            {/* Horizontal line above contact */}
+            <hr className="border-gray-200 my-4" />
+
+            {/* Contact / Help Section directly under nav links */}
+            <div className="text-gray-700 text-sm space-y-3">
               <p className="font-semibold text-[15px]">Need help?</p>
               <div className="flex items-center gap-2 hover:text-pink-500 transition-colors cursor-pointer">
                 <FaPhone size={14} />
@@ -120,6 +126,7 @@ export default function Header() {
             </div>
           </div>
         )}
+
       </header>
 
       {/* Spacer below header */}
