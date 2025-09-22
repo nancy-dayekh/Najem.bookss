@@ -60,79 +60,80 @@ export default function Checkout() {
       2
     );
   const handleSubmit = async () => {
-  if (cart.length === 0) {
-    setErrorMsg("Your cart is empty.");
-    return;
-  }
+    if (cart.length === 0) {
+      setErrorMsg("Your cart is empty.");
+      return;
+    }
 
-  try {
-    const subtotal = parseFloat(calculateSubtotal());
-    const shippingCost = parseFloat(calculateShipping());
-    const total = parseFloat((subtotal + shippingCost).toFixed(2));
+    try {
+      // تأكد من الحساب الصحيح
+      const subtotal = parseFloat(calculateSubtotal());
+      const shippingCost = parseFloat(calculateShipping());
+      const total = parseFloat((subtotal + shippingCost).toFixed(2));
 
-    // 1️⃣ Insert checkout
-    const { data: newCheckout, error: checkoutError } = await supabase
-      .from("checkouts")
-      .insert([
-        {
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          address: formData.address,
-          phone: formData.phone,
-          city: formData.city,
-          region: selectedCountry || "Lebanon",
-          delivery_id: shipping.id || 1,
-          subtotal,
-          total,
-        },
-      ])
-      .select("*")
-      .single();
+      // Debug: عرض البيانات قبل الإرسال
+      console.log("Checkout Data:", {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        address: formData.address,
+        phone: formData.phone,
+        city: formData.city,
+        region: selectedCountry || "Lebanon",
+        delivery_id: shipping.id || 1,
+        subtotal,
+        total,
+      });
+      console.log("Cart Items:", cart);
 
-    if (checkoutError) throw checkoutError;
+      // Insert checkout
+      const { data: newCheckout, error: checkoutError } = await supabase
+        .from("checkouts")
+        .insert([
+          {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            address: formData.address,
+            phone: formData.phone,
+            city: formData.city,
+            region: selectedCountry || "Lebanon",
+            delivery_id: shipping.id || 1,
+            subtotal,
+            total,
+          },
+        ])
+        .select("*")
+        .single();
 
-    // 2️⃣ Insert all products
-    const itemsData = cart.map((item) => ({
-      checkout_id: newCheckout.id,
-      product_id: item.id,
-      size: item.size || "",
-      quantity: item.quantity,
-    }));
+      if (checkoutError) throw checkoutError;
 
-    const { error: itemsError } = await supabase
-      .from("checkout_items")
-      .insert(itemsData);
-    if (itemsError) throw itemsError;
+      // Insert all products
+      const itemsData = cart.map((item) => ({
+        checkout_id: newCheckout.id,
+        product_id: item.id,
+        size: item.size || "",
+        quantity: item.quantity,
+      }));
 
-    // 3️⃣ Prepare invoice message
-    let messageBody = `✅ Hello ${formData.firstName}, your order is successful!\n\n📦 Invoice Details:\n`;
-    cart.forEach((item) => {
-      messageBody += `• ${item.name} | Qty: ${item.quantity} | Size: ${
-        item.size || "-"
-      } | Price: $${item.price}\n`;
-    });
-    messageBody += `\nSubtotal: $${subtotal}\nShipping: $${shippingCost}\nTotal: $${total}`;
+      const { error: itemsError } = await supabase
+        .from("checkout_items")
+        .insert(itemsData);
 
-    // 4️⃣ Send WhatsApp message via CallMeBot (FREE)
-    const encodedMsg = encodeURIComponent(messageBody);
-    const phoneNo = formData.phone.replace("+", ""); // remove + for API
-    const apiKey = "YOUR_CALLMEBOT_API_KEY"; // 🔑 حطي API Key تبعك هون
+      if (itemsError) throw itemsError;
 
-    await fetch(
-      `https://api.callmebot.com/whatsapp.php?phone=${phoneNo}&text=${encodedMsg}&apikey=${apiKey}`
-    );
-
-    // 5️⃣ UI Feedback
-    setSuccessMsg("✅ Your order has been placed and invoice sent via WhatsApp!");
-    setErrorMsg("");
-    localStorage.removeItem("cart");
-    setCart([]);
-    setTimeout(() => (window.location.href = "/"), 3000);
-  } catch (err) {
-    console.error("Checkout Error:", err);
-    setErrorMsg(err?.message || "Failed to place order.");
-  }
-};
+      setSuccessMsg("Your order has been placed successfully!");
+      setErrorMsg("");
+      localStorage.removeItem("cart");
+      setCart([]);
+      setTimeout(() => (window.location.href = "/"), 3000);
+    } catch (err) {
+      console.error("Supabase insert error:", err);
+      const message =
+        err?.message ||
+        err?.details ||
+        "Failed to place order. Please check your input.";
+      setErrorMsg(message);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
