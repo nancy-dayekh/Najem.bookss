@@ -159,25 +159,31 @@ export default function DetailsProducts() {
         </div>
 
         {/* Right Section */}
-        <div className="flex-1 flex flex-col justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-            <p className="text-lg mb-4 Ancizar_Serif text-gray-800">Price: ${product.price}</p>
+{/* Right Section */}
+<div className="flex-1 flex flex-col justify-between">
+  <div>
+    <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
+    
+    {/* Updated Price Display */}
+    <p className="text-lg mb-4 Ancizar_Serif text-gray-800">
+      Price: <span className="font-semibold">${(product.price * quantity).toFixed(2)}</span>
+    </p>
 
-            <div className="flex items-center space-x-4 mb-4">
-              <span className="text-lg Ancizar_Serif">Quantity:</span>
-              <button
-                onClick={handleDecrease}
-                disabled={quantity <= 1}
-                className={`border rounded-full px-3 py-1 text-xl ${quantity <= 1 ? "text-gray-400 border-gray-300 cursor-not-allowed" : "text-pink-600 border-pink-600 hover:bg-pink-600 hover:text-white transition"}`}
-              >−</button>
-              <span className="text-xl font-semibold">{quantity}</span>
-              <button
-                onClick={handleIncrease}
-                disabled={quantity >= product.quantity}
-                className={`border rounded-full px-3 py-1 text-xl ${quantity >= product.quantity ? "text-gray-400 border-gray-300 cursor-not-allowed" : "text-pink-600 border-pink-600 hover:bg-pink-600 hover:text-white transition"}`}
-              >+</button>
-            </div>
+    <div className="flex items-center space-x-4 mb-4">
+      <span className="text-lg Ancizar_Serif">Quantity:</span>
+      <button
+        onClick={handleDecrease}
+        disabled={quantity <= 1}
+        className={`border rounded-full px-3 py-1 text-xl ${quantity <= 1 ? "text-gray-400 border-gray-300 cursor-not-allowed" : "text-pink-600 border-pink-600 hover:bg-pink-600 hover:text-white transition"}`}
+      >−</button>
+      <span className="text-xl font-semibold">{quantity}</span>
+      <button
+        onClick={handleIncrease}
+        disabled={quantity >= product.quantity}
+        className={`border rounded-full px-3 py-1 text-xl ${quantity >= product.quantity ? "text-gray-400 border-gray-300 cursor-not-allowed" : "text-pink-600 border-pink-600 hover:bg-pink-600 hover:text-white transition"}`}
+      >+</button>
+    </div>
+
 
             <label className="block text-lg Ancizar_Serif mb-2">Size:</label>
             {sizeGroups.map((group, idx) => (
