@@ -60,71 +60,78 @@ export default function Checkout() {
       2
     );
   const handleSubmit = async () => {
-  if (cart.length === 0) {
-    setErrorMsg("Your cart is empty.");
-    return;
-  }
+    if (cart.length === 0) {
+      setErrorMsg("Your cart is empty.");
+      return;
+    }
 
-  try {
-    const subtotal = parseFloat(calculateSubtotal());
-    const shippingCost = parseFloat(calculateShipping());
-    const total = parseFloat((subtotal + shippingCost).toFixed(2));
+    try {
+      const subtotal = parseFloat(calculateSubtotal());
+      const shippingCost = parseFloat(calculateShipping());
+      const total = parseFloat((subtotal + shippingCost).toFixed(2));
 
-    // Insert checkout
-    const { data: newCheckout, error: checkoutError } = await supabase
-      .from("checkouts")
-      .insert([{
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        address: formData.address,
-        phone: formData.phone,
-        city: formData.city,
-        region: selectedCountry || "Lebanon",
-        delivery_id: shipping.id || 1,
-        subtotal,
-        total,
-      }])
-      .select("*")
-      .single();
+      // Insert checkout
+      const { data: newCheckout, error: checkoutError } = await supabase
+        .from("checkouts")
+        .insert([
+          {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            address: formData.address,
+            phone: formData.phone,
+            city: formData.city,
+            region: selectedCountry || "Lebanon",
+            delivery_id: shipping.id || 1,
+            subtotal,
+            total,
+          },
+        ])
+        .select("*")
+        .single();
 
-    if (checkoutError) throw checkoutError;
+      if (checkoutError) throw checkoutError;
 
-    // Insert all products
-    const itemsData = cart.map(item => ({
-      checkout_id: newCheckout.id,
-      product_id: item.id,
-      size: item.size || "",
-      quantity: item.quantity,
-    }));
+      // Insert all products
+      const itemsData = cart.map((item) => ({
+        checkout_id: newCheckout.id,
+        product_id: item.id,
+        size: item.size || "",
+        quantity: item.quantity,
+      }));
 
-    const { error: itemsError } = await supabase.from("checkout_items").insert(itemsData);
-    if (itemsError) throw itemsError;
+      const { error: itemsError } = await supabase
+        .from("checkout_items")
+        .insert(itemsData);
+      if (itemsError) throw itemsError;
 
-    // Prepare invoice message
-    let messageBody = `Hello ${formData.firstName}, your order is successful!\n\nInvoice Details:\n`;
-    cart.forEach(item => {
-      messageBody += `${item.name} - Quantity: ${item.quantity} - Size: ${item.size || "-"} - Price: $${item.price}\n`;
-    });
-    messageBody += `Subtotal: $${subtotal}\nShipping: $${shippingCost}\nTotal: $${total}`;
+      // Prepare invoice message
+      let messageBody = `Hello ${formData.firstName}, your order is successful!\n\nInvoice Details:\n`;
+      cart.forEach((item) => {
+        messageBody += `${item.name} - Quantity: ${item.quantity} - Size: ${
+          item.size || "-"
+        } - Price: $${item.price}\n`;
+      });
+      messageBody += `Subtotal: $${subtotal}\nShipping: $${shippingCost}\nTotal: $${total}`;
 
-    // Send SMS using your API route
-    await fetch("/api/send-sms", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ to: formData.phone, body: messageBody }),
-    });
+      // Send SMS using your API route
+      await fetch("/api/send-sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to: formData.phone, body: messageBody }),
+      });
 
-    setSuccessMsg("Your order has been placed successfully! SMS sent to customer.");
-    setErrorMsg("");
-    localStorage.removeItem("cart");
-    setCart([]);
-    setTimeout(() => (window.location.href = "/"), 3000);
-
-  } catch (err) {
-    console.error("Checkout Error:", err);
-    setErrorMsg(err?.message || "Failed to place order.");
-  }
-};
+      setSuccessMsg(
+        "Your order has been placed successfully! SMS sent to customer."
+      );
+      setErrorMsg("");
+      localStorage.removeItem("cart");
+      setCart([]);
+      setTimeout(() => (window.location.href = "/"), 3000);
+    } catch (err) {
+      console.error("Checkout Error:", err);
+      setErrorMsg(err?.message || "Failed to place order.");
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
