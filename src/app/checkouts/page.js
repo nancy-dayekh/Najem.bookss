@@ -59,33 +59,18 @@ export default function Checkout() {
     (parseFloat(calculateSubtotal()) + parseFloat(calculateShipping())).toFixed(
       2
     );
-  const handleSubmit = async () => {
+ const handleSubmit = async () => {
     if (cart.length === 0) {
       setErrorMsg("Your cart is empty.");
       return;
     }
 
     try {
-      // تأكد من الحساب الصحيح
       const subtotal = parseFloat(calculateSubtotal());
       const shippingCost = parseFloat(calculateShipping());
       const total = parseFloat((subtotal + shippingCost).toFixed(2));
 
-      // Debug: عرض البيانات قبل الإرسال
-      console.log("Checkout Data:", {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        address: formData.address,
-        phone: formData.phone,
-        city: formData.city,
-        region: selectedCountry || "Lebanon",
-        delivery_id: shipping.id || 1,
-        subtotal,
-        total,
-      });
-      console.log("Cart Items:", cart);
-
-      // Insert checkout
+      // 1️⃣ تخزين الطلب بقاعدة البيانات
       const { data: newCheckout, error: checkoutError } = await supabase
         .from("checkouts")
         .insert([
@@ -106,7 +91,6 @@ export default function Checkout() {
 
       if (checkoutError) throw checkoutError;
 
-      // Insert all products
       const itemsData = cart.map((item) => ({
         checkout_id: newCheckout.id,
         product_id: item.id,
@@ -120,11 +104,31 @@ export default function Checkout() {
 
       if (itemsError) throw itemsError;
 
+      // 2️⃣ تحضير رسالة الواتساب
+      let message = `Hello ${formData.firstName} ${formData.lastName},%0A`;
+      message += `Here is your invoice:%0A`;
+      cart.forEach((item) => {
+        message += `• ${item.name} x${item.quantity} = $${(
+          item.price * item.quantity
+        ).toFixed(2)}%0A`;
+      });
+      message += `------------------------%0A`;
+      message += `Subtotal: $${subtotal}%0A`;
+      message += `Delivery: $${shippingCost}%0A`;
+      message += `Total: $${total}%0A`;
+      message += `Address: ${formData.address}, ${formData.city}%0A`;
+      message += `Phone: ${formData.phone}`;
+
+      // 3️⃣ فتح واتساب بلينك جاهز
+      const whatsappNumber = formData.phone; // حطي رقمك هون
+      const waLink = `https://wa.me/${whatsappNumber}?text=${message}`;
+      window.open(waLink, "_blank");
+
       setSuccessMsg("Your order has been placed successfully!");
       setErrorMsg("");
       localStorage.removeItem("cart");
       setCart([]);
-      setTimeout(() => (window.location.href = "/"), 3000);
+      setTimeout(() => (window.location.href = "/"), 4000);
     } catch (err) {
       console.error("Supabase insert error:", err);
       const message =
@@ -134,7 +138,6 @@ export default function Checkout() {
       setErrorMsg(message);
     }
   };
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-8">
