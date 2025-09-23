@@ -59,52 +59,57 @@ export default function Checkout() {
     (parseFloat(calculateSubtotal()) + parseFloat(calculateShipping())).toFixed(
       2
     );
- const handleSubmit = async () => {
-    if (cart.length === 0) {
-      setErrorMsg("Your cart is empty.");
-      return;
-    }
+const handleSubmit = async () => {
+  if (cart.length === 0) {
+    setErrorMsg("Your cart is empty.");
+    return;
+  }
 
-    try {
-      const subtotal = parseFloat(calculateSubtotal());
-      const shippingCost = parseFloat(calculateShipping());
-      const total = parseFloat((subtotal + shippingCost).toFixed(2));
+  try {
+    const subtotal = parseFloat(calculateSubtotal());
+    const shippingCost = parseFloat(calculateShipping());
+    const total = parseFloat((subtotal + shippingCost).toFixed(2));
 
-      // 1️⃣ تخزين الطلب بقاعدة البيانات
-      const { data: newCheckout, error: checkoutError } = await supabase
-        .from("checkouts")
-        .insert([
-          {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            address: formData.address,
-            phone: formData.phone,
-            city: formData.city,
-            region: selectedCountry || "Lebanon",
-            delivery_id: shipping.id || 1,
-            subtotal,
-            total,
-          },
-        ])
-        .select("*")
-        .single();
+    // 1️⃣ تخزين الطلب بقاعدة البيانات
+    const { data: newCheckout, error: checkoutError } = await supabase
+      .from("checkouts")
+      .insert([
+        {
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          address: formData.address,
+          phone: formData.phone,
+          city: formData.city,
+          region: selectedCountry || "Lebanon",
+          delivery_id: shipping.id || 1,
+          subtotal,
+          total,
+        },
+      ])
+      .select("*")
+      .single();
 
-      if (checkoutError) throw checkoutError;
+    if (checkoutError) throw checkoutError;
 
-      const itemsData = cart.map((item) => ({
-        checkout_id: newCheckout.id,
-        product_id: item.id,
-        size: item.size || "",
-        quantity: item.quantity,
-      }));
+    const itemsData = cart.map((item) => ({
+      checkout_id: newCheckout.id,
+      product_id: item.id,
+      size: item.size || "",
+      quantity: item.quantity,
+    }));
 
-      const { error: itemsError } = await supabase
-        .from("checkout_items")
-        .insert(itemsData);
+    const { error: itemsError } = await supabase
+      .from("checkout_items")
+      .insert(itemsData);
 
-      if (itemsError) throw itemsError;
+    if (itemsError) throw itemsError;
 
-      // 2️⃣ تحضير رسالة الواتساب
+    // ✅ أول شي رسالة نجاح
+    setSuccessMsg("Your order has been placed successfully!");
+    setErrorMsg("");
+
+    // 2️⃣ بعد ثانية، حضري رسالة الواتساب وافتحيها
+    setTimeout(() => {
       let message = `Hello ${formData.firstName} ${formData.lastName},%0A`;
       message += `Here is your invoice:%0A`;
       cart.forEach((item) => {
@@ -119,25 +124,24 @@ export default function Checkout() {
       message += `Address: ${formData.address}, ${formData.city}%0A`;
       message += `Phone: ${formData.phone}`;
 
-      // 3️⃣ فتح واتساب بلينك جاهز
-      const whatsappNumber = formData.phone; // حطي رقمك هون
+      const whatsappNumber = formData.phone.replace(/[^0-9]/g, ""); // نتأكد إنو الرقم نظيف
       const waLink = `https://wa.me/${whatsappNumber}?text=${message}`;
       window.open(waLink, "_blank");
 
-      setSuccessMsg("Your order has been placed successfully!");
-      setErrorMsg("");
       localStorage.removeItem("cart");
       setCart([]);
       setTimeout(() => (window.location.href = "/"), 4000);
-    } catch (err) {
-      console.error("Supabase insert error:", err);
-      const message =
-        err?.message ||
-        err?.details ||
-        "Failed to place order. Please check your input.";
-      setErrorMsg(message);
-    }
-  };
+    }, 1000);
+  } catch (err) {
+    console.error("Supabase insert error:", err);
+    const message =
+      err?.message ||
+      err?.details ||
+      "Failed to place order. Please check your input.";
+    setErrorMsg(message);
+  }
+};
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-8">
