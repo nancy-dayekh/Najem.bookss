@@ -59,91 +59,85 @@ export default function Checkout() {
     (parseFloat(calculateSubtotal()) + parseFloat(calculateShipping())).toFixed(
       2
     );
-const handleSubmit = async () => {
-  if (cart.length === 0) {
-    setErrorMsg("Your cart is empty.");
-    return;
-  }
+ const handleSubmit = async () => {
+    if (cart.length === 0) {
+      setErrorMsg("Your cart is empty.");
+      return;
+    }
 
-  try {
-    const subtotal = parseFloat(calculateSubtotal());
-    const shippingCost = parseFloat(calculateShipping());
-    const total = parseFloat((subtotal + shippingCost).toFixed(2));
+    try {
+      const subtotal = parseFloat(calculateSubtotal());
+      const shippingCost = parseFloat(calculateShipping());
+      const total = parseFloat((subtotal + shippingCost).toFixed(2));
 
-    // 1️⃣ تخزين الطلب بقاعدة البيانات
-    const { data: newCheckout, error: checkoutError } = await supabase
-      .from("checkouts")
-      .insert([
-        {
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          address: formData.address,
-          phone: formData.phone,
-          city: formData.city,
-          region: selectedCountry || "Lebanon",
-          delivery_id: shipping.id || 1,
-          subtotal,
-          total,
-        },
-      ])
-      .select("*")
-      .single();
+      // 1️⃣ تخزين الطلب بقاعدة البيانات
+      const { data: newCheckout, error: checkoutError } = await supabase
+        .from("checkouts")
+        .insert([
+          {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            address: formData.address,
+            phone: formData.phone,
+            city: formData.city,
+            region: selectedCountry || "Lebanon",
+            delivery_id: shipping.id || 1,
+            subtotal,
+            total,
+          },
+        ])
+        .select("*")
+        .single();
 
-    if (checkoutError) throw checkoutError;
+      if (checkoutError) throw checkoutError;
 
-    const itemsData = cart.map((item) => ({
-      checkout_id: newCheckout.id,
-      product_id: item.id,
-      size: item.size || "",
-      quantity: item.quantity,
-    }));
+      const itemsData = cart.map((item) => ({
+        checkout_id: newCheckout.id,
+        product_id: item.id,
+        size: item.size || "",
+        quantity: item.quantity,
+      }));
 
-    const { error: itemsError } = await supabase
-      .from("checkout_items")
-      .insert(itemsData);
+      const { error: itemsError } = await supabase
+        .from("checkout_items")
+        .insert(itemsData);
 
-    if (itemsError) throw itemsError;
+      if (itemsError) throw itemsError;
 
-    // ✅ أول شي نعطيه رسالة نجاح
-    setSuccessMsg("Your order has been placed successfully!");
-    setErrorMsg("");
-
-    // ✅ بعد ثانية واحدة نفتح الواتساب ونبعت الرسالة
-    setTimeout(() => {
-      let message = `🧾 *New Order Received*%0A`;
-      message += `------------------------%0A`;
-      message += `👤 *Customer:* ${formData.firstName} ${formData.lastName}%0A`;
-      message += `📞 *Phone:* ${formData.phone}%0A`;
-      message += `🏠 *Address:* ${formData.address}, ${formData.city}%0A`;
-      message += `------------------------%0A`;
+      // 2️⃣ تحضير رسالة الواتساب
+      let message = `Hello ${formData.firstName} ${formData.lastName},%0A`;
+      message += `Here is your invoice:%0A`;
       cart.forEach((item) => {
         message += `• ${item.name} x${item.quantity} = $${(
           item.price * item.quantity
         ).toFixed(2)}%0A`;
       });
       message += `------------------------%0A`;
-      message += `💵 *Subtotal:* $${subtotal}%0A`;
-      message += `🚚 *Delivery:* $${shippingCost}%0A`;
-      message += `💰 *Total:* $${total}`;
+      message += `Subtotal: $${subtotal}%0A`;
+      message += `Delivery: $${shippingCost}%0A`;
+      message += `Total: $${total}%0A`;
+      message += `Address: ${formData.address}, ${formData.city}%0A`;
+      message += `Phone: ${formData.phone}`;
 
-      const whatsappNumber = formData.phone; // حطي رقمك هون بدون +
+      // 3️⃣ فتح واتساب بلينك جاهز
+      const whatsappNumber = formData.phone; // حطي رقمك هون
       const waLink = `https://wa.me/${whatsappNumber}?text=${message}`;
       window.open(waLink, "_blank");
 
+      setSuccessMsg("Your order has been placed successfully!");
+      setErrorMsg("");
       localStorage.removeItem("cart");
       setCart([]);
       setTimeout(() => (window.location.href = "/"), 4000);
-    }, 1000);
-  } catch (err) {
-    console.error("Supabase insert error:", err);
-    const message =
-      err?.message ||
-      err?.details ||
-      "Failed to place order. Please check your input.";
-    setErrorMsg(message);
-  }
-};
-
+    } catch (err) {
+      console.error("Supabase insert error:", err);
+      const message =
+        err?.message ||
+        err?.details ||
+        "Failed to place order. Please check your input.";
+      setErrorMsg(message);
+    }
+  };
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-8">
