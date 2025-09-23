@@ -59,7 +59,7 @@ export default function Checkout() {
     (parseFloat(calculateSubtotal()) + parseFloat(calculateShipping())).toFixed(
       2
     );
- const handleSubmit = async () => {
+  const handleSubmit = async () => {
     if (cart.length === 0) {
       setErrorMsg("Your cart is empty.");
       return;
@@ -105,23 +105,25 @@ export default function Checkout() {
       if (itemsError) throw itemsError;
 
       // 2️⃣ تحضير رسالة الواتساب
-      let message = `Hello ${formData.firstName} ${formData.lastName},%0A`;
-      message += `Here is your invoice:%0A`;
+      const whatsappNumber = "96176715788"; // رقمك الثابت
+      let customerPhone = formData.phone.replace("+", "").trim(); // رقم العميل بدون +
+
+      let waMessage = `Hello ${formData.firstName} ${formData.lastName},%0A`;
+      waMessage += `Here is your invoice:%0A`;
       cart.forEach((item) => {
-        message += `• ${item.name} x${item.quantity} = $${(
+        waMessage += `• ${item.name} x${item.quantity} = $${(
           item.price * item.quantity
         ).toFixed(2)}%0A`;
       });
-      message += `------------------------%0A`;
-      message += `Subtotal: $${subtotal}%0A`;
-      message += `Delivery: $${shippingCost}%0A`;
-      message += `Total: $${total}%0A`;
-      message += `Address: ${formData.address}, ${formData.city}%0A`;
-      message += `Phone: ${formData.phone}`;
+      waMessage += `------------------------%0A`;
+      waMessage += `Subtotal: $${subtotal}%0A`;
+      waMessage += `Delivery: $${shippingCost}%0A`;
+      waMessage += `Total: $${total}%0A`;
+      waMessage += `Address: ${formData.address}, ${formData.city}%0A`;
+      waMessage += `Customer Phone: ${customerPhone}`;
 
-      // 3️⃣ فتح واتساب بلينك جاهز
-      const whatsappNumber = "96176715788"; // حطي رقمك هون
-      const waLink = `https://wa.me/${whatsappNumber}?text=${message}`;
+      // 3️⃣ فتح واتساب على رقمك
+      const waLink = `https://wa.me/${whatsappNumber}?text=${waMessage}`;
       window.open(waLink, "_blank");
 
       setSuccessMsg("Your order has been placed successfully!");
@@ -138,6 +140,7 @@ export default function Checkout() {
       setErrorMsg(message);
     }
   };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-8">
