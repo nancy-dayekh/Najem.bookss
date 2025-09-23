@@ -120,7 +120,7 @@ export default function Checkout() {
       message += `Phone: ${formData.phone}`;
 
       // 3️⃣ فتح واتساب بلينك جاهز
-      const whatsappNumber = formData.phone; // حطي رقمك هون
+      const whatsappNumber = "96176715788"; // ✅ رقمك الخاص بدون +
       const waLink = `https://wa.me/${whatsappNumber}?text=${message}`;
       window.open(waLink, "_blank");
 
