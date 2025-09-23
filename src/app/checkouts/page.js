@@ -59,7 +59,7 @@ export default function Checkout() {
     (parseFloat(calculateSubtotal()) + parseFloat(calculateShipping())).toFixed(
       2
     );
-  const handleSubmit = async () => {
+ const handleSubmit = async () => {
     if (cart.length === 0) {
       setErrorMsg("Your cart is empty.");
       return;
@@ -120,7 +120,7 @@ export default function Checkout() {
       message += `Phone: ${formData.phone}`;
 
       // 3️⃣ فتح واتساب بلينك جاهز
-      const whatsappNumber = "96176715788"; // ✅ رقمك الخاص بدون +
+      const whatsappNumber = "96176715788"; // حطي رقمك هون
       const waLink = `https://wa.me/${whatsappNumber}?text=${message}`;
       window.open(waLink, "_blank");
 
