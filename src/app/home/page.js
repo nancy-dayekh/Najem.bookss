@@ -1,9 +1,6 @@
 "use client";
-
 import React, { useEffect, useState, useRef } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-
 import { supabase } from "../../../lib/supabaseClient";
 import NewCollection from "../newcollection/page";
 import Products from "../products/product/product";
@@ -13,19 +10,32 @@ export default function Home() {
   const router = useRouter();
   const handleViewMore = () => router.push("/products");
 
-  const slides = [
-    { type: "video", src: "/video/sliderhomevideo3.mp4" },
-    { type: "images", src: "/images/sliderhome1.jpg" },
-    { type: "images", src: "/images/homeslider2.jpg" },
-  ];
-
+  // ✅ Fixed for JS (remove TypeScript types)
+  const [slides, setSlides] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const timeoutRef = useRef(null);
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Scroll Animation
+  // Fetch slides from Supabase
+  useEffect(() => {
+    async function fetchSlides() {
+      try {
+        const { data, error } = await supabase
+          .from("home_slider")
+          .select("*")
+          .order("id", { ascending: true });
+        if (error) throw error;
+        setSlides(data || []);
+      } catch (err) {
+        console.error("Failed to fetch slides:", err);
+      }
+    }
+    fetchSlides();
+  }, []);
+
+  // Scroll animation
   const handleScrollAnimation = () => {
     const elements = document.querySelectorAll(".animate-scroll");
     elements.forEach((el) => {
@@ -46,19 +56,12 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScrollAnimation);
   }, []);
 
+  // Autoplay slider
   useEffect(() => {
-    if (!sessionStorage.getItem("hasRefreshed")) {
-      sessionStorage.setItem("hasRefreshed", "true");
-      window.location.reload();
-    }
-  }, []);
-
-  // ✅ Autoplay logic with different delay for video
-  useEffect(() => {
+    if (slides.length === 0) return;
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-    // لو السلايد الحالي فيديو نعطيه وقت أطول (مثال: 20 ثانية)
-    const delay = slides[currentIndex].type === "video" ? 20000 : 5000;
+    const delay = slides[currentIndex].media_type === "video" ? 20000 : 5000;
 
     timeoutRef.current = setTimeout(() => {
       setCurrentIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
@@ -67,7 +70,7 @@ export default function Home() {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [currentIndex]);
+  }, [currentIndex, slides]);
 
   const prevSlide = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -79,6 +82,7 @@ export default function Home() {
     setCurrentIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
   };
 
+  // Fetch products
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -111,9 +115,9 @@ export default function Home() {
                 key={idx}
                 className="flex-shrink-0 w-full h-[300px] sm:h-[400px] rounded-[10px] overflow-hidden"
               >
-                {slide.type === "video" ? (
+                {slide.media_type === "video" ? (
                   <video
-                    src={slide.src}
+                    src={slide.media_url}
                     autoPlay
                     loop
                     muted
@@ -121,11 +125,9 @@ export default function Home() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <Image
-                    src={slide.src}
+                  <img
+                    src={slide.media_url}
                     alt={`Slide ${idx}`}
-                    width={1920}
-                    height={1080}
                     className="object-cover w-full h-full"
                   />
                 )}

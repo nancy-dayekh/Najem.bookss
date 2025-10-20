@@ -1,129 +1,175 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaBars,
+  FaTimes,
   FaSearch,
   FaShoppingCart,
   FaPhone,
   FaEnvelope,
-  FaTimes,
-  FaUser,
-  FaHeart,
 } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { supabase } from "../../../lib/supabaseClient";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [logo, setLogo] = useState("");
+  const [colors, setColors] = useState(null);
   const pathname = usePathname();
-  const customerName = null; // replace with actual logic
-
   const navItems = ["Home", "Products", "About", "Contact"];
 
-  const toggleMobileMenu = () => {
-    setMobileOpen(!mobileOpen);
+  // Fetch logo and colors from Supabase
+  useEffect(() => {
+    async function fetchLogo() {
+      const { data, error } = await supabase
+        .from("logos")
+        .select("logo_url")
+        .order("id", { ascending: false })
+        .limit(1)
+        .single();
+      if (data?.logo_url) setLogo(data.logo_url);
+      if (error) console.error("Error fetching logo:", error.message);
+    }
+
+    async function fetchColors() {
+      const { data, error } = await supabase
+        .from("colors")
+        .select("*")
+        .order("id", { ascending: false })
+        .limit(1)
+        .single();
+      if (data) setColors(data);
+      if (error) console.error("Error fetching colors:", error.message);
+    }
+
+    fetchLogo();
+    fetchColors();
+  }, []);
+
+  const mainColor = colors || {
+    button_hex: "#ffffff",
+    button_hover_color: "#f0f0f0",
+    text_color: "#000000",
   };
+
+  const toggleMobileMenu = () => setMobileOpen(!mobileOpen);
+
+  // Fixed logo size
+  const logoWidth = 140;
+  const logoHeight = 70;
 
   return (
     <>
-      <header className="fixed top-0 w-full bg-white z-50 shadow-md h-20">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center h-20 md:h-20 px-5">
-            {/* MOBILE: Menu + Logo + Icons */}
-            <div className="flex items-center md:hidden w-full h-20">
-              <div className="flex items-center ">
-                <button
-                  onClick={toggleMobileMenu}
-                  className="text-black text-2xl p-0 m-0"
-                >
-                  {mobileOpen ? <FaTimes /> : <FaBars />}
-                </button>
+      <header
+        className="fixed top-0 w-full z-50 shadow-md h-20"
+        style={{ backgroundColor: mainColor.button_hex }}
+      >
+        <div className="max-w-7xl mx-auto h-full flex justify-between items-center px-5">
+          {/* MOBILE VIEW */}
+          <div className="flex items-center md:hidden w-full">
+            <button
+              onClick={toggleMobileMenu}
+              className="text-black text-2xl p-0 m-0"
+            >
+              {mobileOpen ? <FaTimes /> : <FaBars />}
+            </button>
 
+            {logo && (
+              <div className="ml-2 w-[110px] h-[40px] relative">
                 <Image
-                  src="/images/logoo.png"
+                  src={logo}
                   alt="Logo"
-                  width={110}
-                  height={40}
+                  fill
+                  style={{ objectFit: "contain" }}
                   priority
-                  className="block m-0"
                 />
               </div>
+            )}
 
-              {/* Icons aligned to the end */}
-              <div className="flex items-center gap-2 text-black ml-auto">
-                <Link
-                  href="/search"
-                  className="hover:text-pink-500 transition-colors"
-                >
-                  <FaSearch className="text-[20px]" />
-                </Link>
-
-                <Link
-                  href="/addtocarts"
-                  className="hover:text-pink-500 transition-colors"
-                >
-                  <FaShoppingCart className="text-[20px]" />
-                </Link>
-              </div>
-            </div>
-
-            {/* DESKTOP: Logo - Nav - Icons */}
-            <div className="hidden md:flex justify-between items-center w-full">
-              {/* Left: Logo */}
-              <Link href="/home" className="flex items-center">
-                <Image
-                  src="/images/logoo.png"
-                  alt="Logo"
-                  width={140}
-                  height={70}
-                  priority
-                  className="object-contain"
-                />
+            <div className="flex items-center gap-2 text-black ml-auto">
+              <Link href="/search">
+                <FaSearch className="text-[20px]" />
               </Link>
+              <Link href="/addtocarts">
+                <FaShoppingCart className="text-[20px]" />
+              </Link>
+            </div>
+          </div>
 
-              {/* Center: Navigation */}
-              <nav className="flex items-center gap-14 uppercase font-semibold text-[15px] tracking-wide">
-                {navItems.map((item) => {
-                  const route = `/${item.toLowerCase()}`;
-                  const isActive = pathname === route;
-                  return (
-                    <Link key={item} href={route} className="relative group">
-                      <span className="text-black text-base hover:opacity-90">
-                        {item}
-                      </span>
-                      <span
-                        className={`absolute left-0 bottom-[-4px] w-full h-[2px] transition-all ${
-                          isActive ? "bg-pink-400" : "group-hover:bg-pink-400"
-                        }`}
-                      ></span>
-                    </Link>
-                  );
-                })}
-              </nav>
+          {/* DESKTOP VIEW */}
+          <div className="hidden md:flex justify-between items-center w-full">
+            {/* Logo */}
+            <Link href="/home" className="flex items-center">
+              {logo && (
+                <div
+                  className="relative"
+                  style={{ width: logoWidth, height: logoHeight }}
+                >
+                  <Image
+                    src={logo}
+                    alt="Logo"
+                    fill
+                    style={{ objectFit: "contain" }}
+                    priority
+                  />
+                </div>
+              )}
+            </Link>
 
-              {/* Right: Search + Cart */}
-              <div className="flex items-center gap-4 text-black">
-                <Link href="/search">
-                  <FaSearch className="text-lg" />
-                </Link>
-                <Link href="/addtocarts">
-                  <FaShoppingCart className="text-lg" />
-                </Link>
-              </div>
+            {/* Nav */}
+            <nav className="flex items-center gap-14 uppercase font-semibold text-[15px] tracking-wide">
+              {navItems.map((item) => {
+                const route = `/${item.toLowerCase()}`;
+                const isActive = pathname === route;
+                return (
+                  <Link key={item} href={route} className="relative group">
+                    <span
+                      className="text-base hover:opacity-90"
+                      style={{ color: mainColor.text_color }}
+                    >
+                      {item}
+                    </span>
+                    <span
+                      className="absolute left-0 bottom-[-4px] w-full h-[2px] transition-all"
+                      style={{
+                        backgroundColor: isActive
+                          ? mainColor.text_color
+                          : "transparent",
+                      }}
+                    ></span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* Icons */}
+            <div className="flex items-center gap-4">
+              <Link href="/search">
+                <FaSearch className="text-lg" style={{ color: mainColor.text_color }} />
+              </Link>
+              <Link href="/addtocarts">
+                <FaShoppingCart className="text-lg" style={{ color: mainColor.text_color }} />
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* Mobile Drawer */}
+        {/* MOBILE DRAWER */}
         {mobileOpen && (
           <div className="md:hidden fixed top-0 left-0 h-screen w-64 bg-white z-50 shadow-xl p-6 flex flex-col transition-transform duration-300 ease-in-out">
-            {/* Drawer Top: Logo + Close */}
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-[17px] font-bold text-black">Menu</h1>
+              <h1
+                className="text-[17px] font-bold"
+                style={{ color: mainColor.text_color }}
+              >
+                Menu
+              </h1>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="text-2xl text-black hover:text-pink-500 transition-colors"
+                className="text-2xl"
+                style={{ color: mainColor.text_color }}
               >
                 <FaTimes />
               </button>
@@ -131,13 +177,20 @@ export default function Header() {
 
             <hr className="border-gray-200 mb-4" />
 
-            {/* Drawer Navigation */}
             <ul className="flex flex-col gap-3">
               {navItems.map((item) => (
                 <li key={item}>
                   <Link
                     href={`/${item.toLowerCase()}`}
-                    className="flex items-center gap-3 px-4 py-2 text-[17px] font-semibold rounded-lg hover:bg-pink-50 hover:text-pink-500 transition-all"
+                    className="flex items-center gap-3 px-4 py-2 text-[17px] font-semibold rounded-lg transition-all"
+                    style={{ color: mainColor.text_color }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.backgroundColor =
+                        mainColor.button_hover_color)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.backgroundColor = "transparent")
+                    }
                     onClick={() => setMobileOpen(false)}
                   >
                     {item}
@@ -148,14 +201,24 @@ export default function Header() {
 
             <hr className="border-gray-200 my-4" />
 
-            {/* Contact Section */}
-            <div className="text-black/70 text-sm space-y-3">
-              <p className="font-semibold text-[15px]">Need help?</p>
-              <div className="flex items-center gap-2 hover:text-pink-500 transition-colors cursor-pointer">
+            <div className="text-sm space-y-3">
+              <p
+                className="font-semibold text-[15px]"
+                style={{ color: mainColor.text_color }}
+              >
+                Need help?
+              </p>
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                style={{ color: mainColor.text_color }}
+              >
                 <FaPhone size={14} />
                 <span>+961 71 407 764</span>
               </div>
-              <div className="flex items-center gap-2 hover:text-pink-500 transition-colors cursor-pointer">
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                style={{ color: mainColor.text_color }}
+              >
                 <FaEnvelope size={14} />
                 <span>poupee.dresses1@gmail.com</span>
               </div>
