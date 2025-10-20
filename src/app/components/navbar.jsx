@@ -1,13 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import {
-  FaBars,
-  FaTimes,
-  FaSearch,
-  FaShoppingCart,
-  FaPhone,
-  FaEnvelope,
-} from "react-icons/fa";
+import { FaBars, FaTimes, FaSearch, FaShoppingCart, FaPhone, FaEnvelope } from "react-icons/fa";
+
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
