@@ -87,7 +87,7 @@ export default function Home() {
     async function fetchProducts() {
       try {
         const { data, error } = await supabase
-          .from("add_products")
+          .from("books")
           .select("*")
           .order("id", { ascending: true });
         if (error) throw error;

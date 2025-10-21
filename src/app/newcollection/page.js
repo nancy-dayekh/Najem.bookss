@@ -28,7 +28,7 @@ export default function NewCollection() {
     async function fetchProducts() {
       try {
         const { data, error } = await supabase
-          .from("add_products")
+          .from("books")
           .select("*")
           .eq("is_new_collection", true);
 

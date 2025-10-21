@@ -1,7 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import { FaBars, FaTimes, FaSearch, FaShoppingCart, FaPhone, FaEnvelope } from "react-icons/fa";
-
+import {
+  FaBars,
+  FaTimes,
+  FaSearch,
+  FaShoppingCart,
+  FaPhone,
+  FaEnvelope,
+} from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -50,16 +56,9 @@ export default function Header() {
 
   const toggleMobileMenu = () => setMobileOpen(!mobileOpen);
 
-  // Fixed logo size
-  const logoWidth = 140;
-  const logoHeight = 70;
-
   return (
     <>
-      <header
-        className="fixed top-0 w-full z-50 shadow-md h-20"
-        style={{ backgroundColor: mainColor.button_hex }}
-      >
+      <header className="fixed top-0 w-full z-50 shadow-md h-20 bg-white">
         <div className="max-w-7xl mx-auto h-full flex justify-between items-center px-5">
           {/* MOBILE VIEW */}
           <div className="flex items-center md:hidden w-full">
@@ -71,7 +70,7 @@ export default function Header() {
             </button>
 
             {logo && (
-              <div className="ml-2 w-[110px] h-[40px] relative">
+              <div className="ml-4 relative" style={{ width: 180, height: 70 }}>
                 <Image
                   src={logo}
                   alt="Logo"
@@ -82,7 +81,7 @@ export default function Header() {
               </div>
             )}
 
-            <div className="flex items-center gap-2 text-black ml-auto">
+            <div className="flex items-center gap-3 text-black ml-auto">
               <Link href="/search">
                 <FaSearch className="text-[20px]" />
               </Link>
@@ -94,13 +93,10 @@ export default function Header() {
 
           {/* DESKTOP VIEW */}
           <div className="hidden md:flex justify-between items-center w-full">
-            {/* Logo */}
+            {/* Left side: Logo */}
             <Link href="/home" className="flex items-center">
               {logo && (
-                <div
-                  className="relative"
-                  style={{ width: logoWidth, height: logoHeight }}
-                >
+                <div className="relative" style={{ width: 260, height: 100 }}>
                   <Image
                     src={logo}
                     alt="Logo"
@@ -112,8 +108,8 @@ export default function Header() {
               )}
             </Link>
 
-            {/* Nav */}
-            <nav className="flex items-center gap-14 uppercase font-semibold text-[15px] tracking-wide">
+            {/* Center: Nav links */}
+            <nav className="flex items-center gap-14 uppercase font-semibold text-[15px] tracking-wide justify-center flex-1">
               {navItems.map((item) => {
                 const route = `/${item.toLowerCase()}`;
                 const isActive = pathname === route;
@@ -138,13 +134,19 @@ export default function Header() {
               })}
             </nav>
 
-            {/* Icons */}
+            {/* Right side: Icons */}
             <div className="flex items-center gap-4">
               <Link href="/search">
-                <FaSearch className="text-lg" style={{ color: mainColor.text_color }} />
+                <FaSearch
+                  className="text-lg"
+                  style={{ color: mainColor.text_color }}
+                />
               </Link>
               <Link href="/addtocarts">
-                <FaShoppingCart className="text-lg" style={{ color: mainColor.text_color }} />
+                <FaShoppingCart
+                  className="text-lg"
+                  style={{ color: mainColor.text_color }}
+                />
               </Link>
             </div>
           </div>

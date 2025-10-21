@@ -6,14 +6,6 @@ import Image from "next/image";
 import AllProduct from "../product/product";
 import { supabase } from "../../../../lib/supabaseClient";
 
-function chunkArray(arr, size) {
-  const chunked = [];
-  for (let i = 0; i < arr.length; i += size) {
-    chunked.push(arr.slice(i, i + size));
-  }
-  return chunked;
-}
-
 export default function DetailsProducts() {
   const params = useParams();
   const id = params.productsid;
@@ -24,7 +16,6 @@ export default function DetailsProducts() {
   const [quantity, setQuantity] = useState(1);
   const [cart, setCart] = useState([]);
   const [alertOpen, setAlertOpen] = useState(false);
-  const [selectedSize, setSelectedSize] = useState("");
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -32,7 +23,7 @@ export default function DetailsProducts() {
 
     // Fetch single product
     supabase
-      .from("add_products")
+      .from("books")
       .select("*")
       .eq("id", id)
       .single()
@@ -47,16 +38,12 @@ export default function DetailsProducts() {
             ? data.image
             : supabase.storage.from("products-images").getPublicUrl(data.image).publicUrl;
           setMainImage(mainImgUrl);
-
-          // Set default size
-          const sizes = (data.size?.split(" ") || []).filter((s) => s.trim() !== "");
-          setSelectedSize(sizes[0] || "");
         }
       });
 
     // Fetch multiple images
     supabase
-      .from("multiimages")
+      .from("multimagebook")
       .select("*")
       .eq("products_id", id)
       .then(({ data, error }) => {
@@ -66,7 +53,7 @@ export default function DetailsProducts() {
 
     // Fetch all products for recommendations
     supabase
-      .from("add_products")
+      .from("books")
       .select("*")
       .order("id", { ascending: true })
       .then(({ data }) => setProducts(data || []));
@@ -86,9 +73,7 @@ export default function DetailsProducts() {
 
   const handleAddToCart = () => {
     const updatedCart = [...cart];
-    const existingIndex = updatedCart.findIndex(
-      (item) => item.id === product.id && item.size === selectedSize
-    );
+    const existingIndex = updatedCart.findIndex((item) => item.id === product.id);
 
     if (existingIndex !== -1) {
       updatedCart[existingIndex].quantity += quantity;
@@ -99,7 +84,6 @@ export default function DetailsProducts() {
         quantity,
         price: product.price,
         image: mainImage,
-        size: selectedSize,
       });
     }
 
@@ -108,14 +92,12 @@ export default function DetailsProducts() {
     setAlertOpen(true);
   };
 
-  if (!product) return (
-    <div className="flex justify-center items-center h-64 text-gray-500 font-sans">
-      Loading product details...
-    </div>
-  );
-
-  const sizes = (product.size?.split(" ") || []).filter((s) => s.trim() !== "");
-  const sizeGroups = chunkArray(sizes, 3);
+  if (!product)
+    return (
+      <div className="flex justify-center items-center h-64 text-gray-500 font-sans">
+        Loading product details...
+      </div>
+    );
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12 font-sans">
@@ -141,17 +123,12 @@ export default function DetailsProducts() {
                   key={idx}
                   className={`relative h-28 w-28 rounded-lg cursor-pointer transition duration-300 shadow-md ${
                     mainImage === imgUrl
-                      ? "border-4 border-pink-400 scale-105"
+                      ? "border-4 border-blue-400 scale-105"
                       : "border-2 border-transparent hover:scale-105"
                   }`}
                   onClick={() => setMainImage(imgUrl)}
                 >
-                  <Image
-                    src={imgUrl}
-                    alt={product.name}
-                    fill
-                    className="object-cover rounded-lg"
-                  />
+                  <Image src={imgUrl} alt={product.name} fill className="object-cover rounded-lg" />
                 </div>
               );
             })}
@@ -159,51 +136,45 @@ export default function DetailsProducts() {
         </div>
 
         {/* Right Section */}
-{/* Right Section */}
-<div className="flex-1 flex flex-col justify-between">
-  <div>
-    <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-    
-    {/* Updated Price Display */}
-    <p className="text-lg mb-4 Ancizar_Serif text-gray-800">
-      Price: <span className="font-semibold">${(product.price * quantity).toFixed(2)}</span>
-    </p>
+        <div className="flex-1 flex flex-col justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
 
-    <div className="flex items-center space-x-4 mb-4">
-      <span className="text-lg Ancizar_Serif">Quantity:</span>
-      <button
-        onClick={handleDecrease}
-        disabled={quantity <= 1}
-        className={`border rounded-full px-3 py-1 text-xl ${quantity <= 1 ? "text-gray-400 border-gray-300 cursor-not-allowed" : "text-pink-600 border-pink-600 hover:bg-pink-600 hover:text-white transition"}`}
-      >−</button>
-      <span className="text-xl font-semibold">{quantity}</span>
-      <button
-        onClick={handleIncrease}
-        disabled={quantity >= product.quantity}
-        className={`border rounded-full px-3 py-1 text-xl ${quantity >= product.quantity ? "text-gray-400 border-gray-300 cursor-not-allowed" : "text-pink-600 border-pink-600 hover:bg-pink-600 hover:text-white transition"}`}
-      >+</button>
-    </div>
+            <p className="text-lg mb-4 Ancizar_Serif text-gray-800">
+              Price: <span className="font-semibold">${(product.price * quantity).toFixed(2)}</span>
+            </p>
 
-
-            <label className="block text-lg Ancizar_Serif mb-2">Size:</label>
-            {sizeGroups.map((group, idx) => (
-              <div key={idx} className="flex gap-2 mb-2">
-                {group.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-6 py-2 border text-sm font-medium rounded-md w-20 text-center ${selectedSize === size ? "bg-pink-400 text-white border-pink-400" : "bg-white border-gray-300 text-gray-700 hover:bg-pink-50"} transition duration-200 ease-in-out`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            ))}
+            <div className="flex items-center space-x-4 mb-4">
+              <span className="text-lg Ancizar_Serif">Quantity:</span>
+              <button
+                onClick={handleDecrease}
+                disabled={quantity <= 1}
+                className={`border rounded-full px-3 py-1 text-xl ${
+                  quantity <= 1
+                    ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                    : "text-blue-600 border-blue-600 hover:bg-blue-600 hover:text-white transition"
+                }`}
+              >
+                −
+              </button>
+              <span className="text-xl font-semibold">{quantity}</span>
+              <button
+                onClick={handleIncrease}
+                disabled={quantity >= product.quantity}
+                className={`border rounded-full px-3 py-1 text-xl ${
+                  quantity >= product.quantity
+                    ? "text-gray-400 border-gray-300 cursor-not-allowed"
+                    : "text-blue-600 border-blue-600 hover:bg-blue-600 hover:text-white transition"
+                }`}
+              >
+                +
+              </button>
+            </div>
 
             <button
               onClick={handleAddToCart}
               disabled={product.quantity === 0}
-              className={`w-full mt-6 border-2 border-pink-400 text-pink-400 bg-transparent font-semibold py-3 rounded hover:bg-pink-400 hover:text-white transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`w-full mt-6 border-2 border-blue-400 text-blue-400 bg-transparent font-semibold py-3 rounded hover:bg-blue-400 hover:text-white transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {product.quantity === 0 ? "Out of Stock" : "Add to Cart"}
             </button>
@@ -216,7 +187,9 @@ export default function DetailsProducts() {
         </div>
       </div>
 
-      <h2 className="uppercase text-black mt-24 mb-8 ml-2 font-semibold text-lg tracking-wide">You may be interested in</h2>
+      <h2 className="uppercase text-black mt-24 mb-8 ml-2 font-semibold text-lg tracking-wide">
+        You may be interested in
+      </h2>
 
       <div className="flex justify-center ml-2">
         <AllProduct products={products} />
@@ -225,7 +198,9 @@ export default function DetailsProducts() {
       {alertOpen && (
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg z-50">
           Item added to cart successfully!
-          <button onClick={() => setAlertOpen(false)} className="ml-4 font-bold hover:text-green-200">×</button>
+          <button onClick={() => setAlertOpen(false)} className="ml-4 font-bold hover:text-green-200">
+            ×
+          </button>
         </div>
       )}
     </div>

@@ -93,8 +93,7 @@ export default function Checkout() {
 
       const itemsData = cart.map((item) => ({
         checkout_id: newCheckout.id,
-        product_id: item.id,
-        size: item.size || "",
+        book_id: item.id,
         quantity: item.quantity,
       }));
 
