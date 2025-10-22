@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { supabase } from "../../../lib/supabaseClient"; // عدل المسار حسب المشروع
 
 // Scroll animation function
 const handleScrollAnimation = () => {
@@ -17,7 +18,21 @@ const handleScrollAnimation = () => {
 };
 
 export default function About() {
+  const [colors, setColors] = useState({ text_color: "#2a2a2a" }); // اللون الافتراضي
+
+  // Fetch colors from database
+  const fetchColors = async () => {
+    const { data, error } = await supabase
+      .from("colors")
+      .select("*")
+      .order("id")
+      .limit(1)
+      .single();
+    if (data) setColors({ text_color: data.text_color });
+  };
+
   useEffect(() => {
+    fetchColors();
     window.addEventListener("scroll", handleScrollAnimation);
     handleScrollAnimation();
     return () => {
@@ -30,8 +45,8 @@ export default function About() {
       {/* Banner Image */}
       <div className="w-full h-[200px] relative mb-6">
         <Image
-          src="/images/logoo.png"
-          alt="Profile"
+          src="/images/about1.jpeg"
+          alt="مكتبة نجم"
           fill
           className="object-cover rounded"
         />
@@ -39,91 +54,92 @@ export default function About() {
 
       {/* ABOUT US Section */}
       <div className="text-center mb-6">
-        <h3 className="text-2xl font-semibold text-gray-800 mb-4">ABOUT US</h3>
-        <p className="text-gray-600 text-justify leading-7 max-w-4xl mx-auto text-sm sm:text-base">
-          Welcome to <strong>Poupee Dress</strong>, your ultimate destination
-          for elegant and high-quality baby girl clothing. We specialize in
-          crafting charming dresses that combine comfort and style, ensuring
-          your little princess looks adorable for every occasion. Thank you for
-          choosing <strong>Poupee Dress</strong> to be part of your cherished
-          moments.
+        <h3
+          className="text-2xl font-semibold mb-4"
+          style={{ color: colors.text_color }}
+        >
+          عن مكتبة نجم
+        </h3>
+        <p
+          className="text-justify leading-7 max-w-4xl mx-auto text-sm sm:text-base"
+          style={{ color: colors.text_color }}
+        >
+          مكتبة نجم هي منصة لبيع الكتب والروايات، تهدف إلى تسهيل وصول القرّاء
+          إلى مختلف العناوين الأدبية والثقافية بأسعار مناسبة. نسعى إلى توفير تجربة
+          شراء سهلة ومريحة من خلال الطلب الإلكتروني والتوصيل إلى جميع المناطق
+          اللبنانية. تركّز مكتبة نجم على جودة الخدمة وتنوّع المحتوى لتلبية أذواق
+          القرّاء بمختلف اهتماماتهم. رؤيتنا أن نكون وجهة موثوقة لكل من يبحث عن
+          كتاب مميز، ورسالتنا نشر ثقافة القراءة في كل بيت
         </p>
       </div>
 
-      {/* Responsive Stacked Layout on Mobile */}
+      {/* Responsive Stacked Layout */}
       <div className="flex flex-col sm:grid sm:grid-cols-2 gap-6 items-center mt-10">
-        {/* Mobile: Image Top, Text Bottom */}
-        {/* Desktop: Text Left, Image Right */}
-
-        {/* Section 1 */}
+        {/* Section 1 Mobile */}
         <div className="block sm:hidden animate-scroll">
           <Image
-            src="/images/pictureabout1.jpg"
-            alt="Elegant Dress"
+            src="/images/about2.jpeg"
+            alt="كتب ومكتبة"
             width={300}
             height={300}
             className="w-full h-auto rounded shadow-lg object-cover mb-4"
           />
-          <p className="text-justify text-sm leading-6 px-2">
-            Our dresses are meticulously crafted with intricate details, from
-            soft fabrics to elegant trims, ensuring your baby girl feels
-            comfortable and beautiful. Each dress blends sophistication and
-            playfulness, offering styles for different occasions.
+          <p className="text-justify text-sm leading-6 px-2" style={{ color: colors.text_color }}>
+            نسعى لتقديم تجربة شراء ممتعة وسهلة، مع توفير معلومات مفصلة عن كل كتاب
+            لضمان اختيار القرّاء للكتب التي تناسب اهتماماتهم. مجموعتنا متنوعة
+            لتلبي كل الأذواق
           </p>
         </div>
 
-        {/* Section 1 for Desktop */}
-        <div className="hidden sm:block animate-scroll text-justify px-4 leading-7 text-base ml-32">
-          Our dresses are meticulously crafted with intricate details, from soft
-          fabrics to elegant trims, ensuring your baby girl feels comfortable
-          and beautiful. Each dress blends sophistication and playfulness,
-          offering styles for different occasions.
+        {/* Section 1 Desktop */}
+        <div className="hidden sm:block animate-scroll text-justify px-4 leading-7 text-base ml-32" style={{ color: colors.text_color }}>
+          نسعى لتقديم تجربة شراء ممتعة وسهلة، مع توفير معلومات مفصلة عن كل كتاب
+          لضمان اختيار القرّاء للكتب التي تناسب اهتماماتهم. مجموعتنا متنوعة
+          لتلبي كل الأذواق
         </div>
         <div className="hidden sm:block animate-scroll overflow-hidden h-80">
           <Image
-            src="/images/pictureabout1.jpg"
-            alt="Elegant Dress"
+            src="/images/about2.jpeg"
+            alt="كتب ومكتبة"
             width={450}
             height={300}
             className="transition-transform duration-300 ease-in-out hover:scale-110 shadow-lg object-cover rounded"
           />
         </div>
 
-        {/* Section 2 */}
+        {/* Section 2 Mobile */}
         <div className="block sm:hidden animate-scroll mt-10">
           <Image
-            src="/images/pictureabout2.jpg"
-            alt="Stylish Baby Dress"
+            src="/images/about3.jpeg"
+            alt="تصفح الكتب"
             width={500}
             height={300}
             className="w-full h-auto rounded shadow-lg object-cover mb-4"
           />
-          <p className="text-justify text-sm leading-6 px-2">
-            We are committed to providing an exceptional shopping experience
-            with easy navigation and detailed product descriptions, ensuring
-            that every customer finds the perfect dress for their little one.
-            Discover the beauty of childhood with <strong>Poupee Dress</strong>.
+          <p className="text-justify text-sm leading-6 px-2" style={{ color: colors.text_color }}>
+            نحرص على تقديم تجربة شراء مميزة وسهلة لجميع العملاء، مع توفير وصف
+            دقيق لكل كتاب ومعلومات مفصلة لتسهيل عملية الاختيار. اكتشف جمال
+            القراءة مع مكتبة نجم
           </p>
         </div>
 
-        {/* Section 2 for Desktop */}
+        {/* Section 2 Desktop */}
         <div className="hidden sm:block animate-scroll overflow-hidden h-80 ml-32">
           <Image
-            src="/images/pictureabout2.jpg"
-            alt="Stylish Baby Dress"
+            src="/images/about3.jpeg"
+            alt="تصفح الكتب"
             width={500}
             height={300}
             className="transition-transform duration-300 ease-in-out hover:scale-110 shadow-lg object-cover rounded"
           />
         </div>
-        <div className="hidden sm:block animate-scroll text-justify px-4 leading-7 text-basemax-w-md max-w-120">
-          We are committed to providing an exceptional shopping experience with
-          easy navigation and detailed product descriptions, ensuring that every
-          customer finds the perfect dress for their little one. Discover the
-          beauty of childhood with <strong>Poupee Dress</strong>.
+        <div className="hidden sm:block animate-scroll text-justify px-4 leading-7 text-base max-w-md" style={{ color: colors.text_color }}>
+          نحرص على تقديم تجربة شراء مميزة وسهلة لجميع العملاء، مع توفير وصف
+          دقيق لكل كتاب ومعلومات مفصلة لتسهيل عملية الاختيار. اكتشف جمال
+          القراءة مع مكتبة نجم
         </div>
       </div>
-      <br/><br/><br/><br/>
+      <br /><br /><br /><br />
     </div>
   );
 }

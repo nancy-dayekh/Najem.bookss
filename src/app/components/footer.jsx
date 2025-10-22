@@ -8,18 +8,13 @@ import { supabase } from "../../../lib/supabaseClient";
 const socialLinks = [
   {
     Icon: FaInstagram,
-    url: "https://www.instagram.com/poupee_dresses",
+    url: "https://www.instagram.com/najem.bookss",
     title: "Instagram",
   },
   {
     Icon: FaWhatsapp,
-    url: "https://wa.me/96171407764",
+    url: "https://wa.me/96178804781",
     title: "WhatsApp",
-  },
-  {
-    Icon: FaEnvelope,
-    url: "mailto:poupee.dresses1@gmail.com",
-    title: "Email",
   },
 ];
 
@@ -41,7 +36,7 @@ export default function Footer() {
     else setColors(data);
   }
 
-  if (!colors) return <div>Loading footer...</div>;
+  if (!colors) return <div></div>;
 
   return (
     <footer
@@ -51,8 +46,13 @@ export default function Footer() {
       <div className="max-w-screen-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
         {/* Logo & Description */}
         <div>
-          <h2 className="text-2xl font-bold mb-4">{colors.brand_name || "Poupee Dresses"}</h2>
-          <p className="text-sm">{colors.footer_text || "Discover stylish and elegant dresses tailored for every occasion."}</p>
+          <h2 className="text-2xl font-bold mb-4">
+            {colors.brand_name || "Najem Book"}
+          </h2>
+          <p className="text-sm">
+            {colors.footer_text ||
+              "Discover a stylish and elegant collection of books suitable for every occasion."}
+          </p>
         </div>
 
         {/* Shop Links */}
@@ -70,8 +70,12 @@ export default function Footer() {
                   <span
                     className="cursor-pointer transition-colors"
                     style={{ color: colors.text_color }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = colors.hover_color)}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = colors.text_color)}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = colors.hover_color)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = colors.text_color)
+                    }
                   >
                     {item.name}
                   </span>
@@ -94,8 +98,12 @@ export default function Footer() {
                   <span
                     className="cursor-pointer transition-colors"
                     style={{ color: colors.text_color }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = colors.hover_color)}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = colors.text_color)}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = colors.hover_color)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = colors.text_color)
+                    }
                   >
                     {item.name}
                   </span>
@@ -118,14 +126,21 @@ export default function Footer() {
                 className="p-0 rounded-full transition-colors"
                 title={title}
                 style={{ color: colors.text_color }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = colors.hover_color)}
-                onMouseLeave={(e) => (e.currentTarget.style.color = colors.text_color)}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = colors.hover_color)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = colors.text_color)
+                }
               >
                 <Icon size={18} />
               </a>
             ))}
           </div>
-          <p className="text-xs italic mt-4" style={{ color: colors.text_color }}>
+          <p
+            className="text-xs italic mt-4"
+            style={{ color: colors.text_color }}
+          >
             Stay connected with us on social media!
           </p>
         </div>
@@ -133,21 +148,19 @@ export default function Footer() {
         {/* Contact Info */}
         <div>
           <h2 className="text-xl font-bold mb-2">Contact Us</h2>
-          <p className="text-sm" style={{ color: colors.text_color }}>
-            <strong>Email:</strong> poupee.dresses1@gmail.com
-          </p>
+
           <p className="text-sm mb-2" style={{ color: colors.text_color }}>
             <strong>Phone:</strong> +961 71 407 764
-          </p>
-          <p className="text-sm" style={{ color: colors.text_color }}>
-            <strong>Location:</strong> Abbesiyeh / Tyr, Lebanon
           </p>
         </div>
       </div>
 
       {/* Bottom Text */}
-      <div className="text-center text-xs border-t mt-12 pt-6" style={{ borderColor: colors.text_color }}>
-        © {new Date().getFullYear()} Poupee Dress. All rights reserved.
+      <div
+        className="text-center text-xs border-t mt-12 pt-6"
+        style={{ borderColor: colors.text_color }}
+      >
+        © {new Date().getFullYear()} Najem Book. All rights reserved.
       </div>
     </footer>
   );

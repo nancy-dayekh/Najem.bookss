@@ -38,7 +38,7 @@ export default function ShoppingCart() {
       cart.map(async (item) => {
         try {
           const { data, error } = await supabase
-            .from("add_products")
+            .from("books")
             .select("quantity")
             .eq("id", item.id)
             .single();

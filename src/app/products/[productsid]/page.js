@@ -15,81 +15,128 @@ export default function DetailsProducts() {
   const [mainImage, setMainImage] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [cart, setCart] = useState([]);
-  const [alertOpen, setAlertOpen] = useState(false);
   const [products, setProducts] = useState([]);
+  const [colors, setColors] = useState({
+    hex: "#ffffff",
+    text_color: "#111827",
+    hover_color: "#2563eb",
+    button_hex: "#2563eb",
+    button_text_color: "#ffffff",
+    button_hover_color: "#1e40af",
+  });
 
+  // Fetch theme colors
+  useEffect(() => {
+    async function fetchColors() {
+      const { data } = await supabase
+        .from("colors")
+        .select("*")
+        .order("id")
+        .limit(1)
+        .single();
+      if (data) {
+        setColors({
+          hex: data.hex || "#ffffff",
+          text_color: data.text_color || "#111827",
+          hover_color: data.hover_color || "#2563eb",
+          button_hex: data.button_hex || "#2563eb",
+          button_text_color: data.button_text_color || "#ffffff",
+          button_hover_color: data.button_hover_color || "#1e40af",
+        });
+      }
+    }
+    fetchColors();
+  }, []);
+
+  // Fetch product, images, and all products
   useEffect(() => {
     if (!id) return;
 
-    // Fetch single product
-    supabase
-      .from("books")
-      .select("*")
-      .eq("id", id)
-      .single()
-      .then(({ data, error }) => {
-        if (error) console.error(error);
-        else {
-          setProduct(data);
-          setQuantity(1);
+    async function fetchProduct() {
+      const { data } = await supabase
+        .from("books")
+        .select("*")
+        .eq("id", id)
+        .single();
+      if (data) {
+        setProduct(data);
+        const mainImgUrl = data.image?.startsWith("http")
+          ? data.image
+          : supabase.storage.from("products-images").getPublicUrl(data.image)
+              .publicUrl;
+        setMainImage(mainImgUrl);
+      }
+    }
 
-          // Set main image URL
-          const mainImgUrl = data.image?.startsWith("http")
-            ? data.image
-            : supabase.storage.from("products-images").getPublicUrl(data.image).publicUrl;
-          setMainImage(mainImgUrl);
-        }
-      });
+    async function fetchImages() {
+      const { data } = await supabase
+        .from("multimagebook")
+        .select("*")
+        .eq("products_id", id);
+      if (data) setMultImages(data);
+    }
 
-    // Fetch multiple images
-    supabase
-      .from("multimagebook")
-      .select("*")
-      .eq("products_id", id)
-      .then(({ data, error }) => {
-        if (error) console.error(error);
-        else setMultImages(data || []);
-      });
+    async function fetchAllProducts() {
+      const { data } = await supabase
+        .from("books")
+        .select("*")
+        .order("id", { ascending: true });
+      setProducts(data || []);
+    }
 
-    // Fetch all products for recommendations
-    supabase
-      .from("books")
-      .select("*")
-      .order("id", { ascending: true })
-      .then(({ data }) => setProducts(data || []));
+    fetchProduct();
+    fetchImages();
+    fetchAllProducts();
 
-    // Load cart from localStorage
     const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(savedCart);
   }, [id]);
 
-  const handleIncrease = () => {
-    if (quantity < (product?.quantity || 1)) setQuantity(quantity + 1);
-  };
+  // Add to cart with stock update
+  const handleAddToCart = async () => {
+    if (!product || product.stock === 0) return;
 
-  const handleDecrease = () => {
-    if (quantity > 1) setQuantity(quantity - 1);
-  };
+    const actualQuantity = Math.min(quantity, product.stock);
 
-  const handleAddToCart = () => {
+    // Update local cart
     const updatedCart = [...cart];
-    const existingIndex = updatedCart.findIndex((item) => item.id === product.id);
+    const index = updatedCart.findIndex((item) => item.id === product.id);
 
-    if (existingIndex !== -1) {
-      updatedCart[existingIndex].quantity += quantity;
+    if (index !== -1) {
+      updatedCart[index].quantity += actualQuantity;
     } else {
       updatedCart.push({
         id: product.id,
         name: product.name,
-        quantity,
         price: product.price,
         image: mainImage,
+        quantity: actualQuantity,
       });
     }
-
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
     setCart(updatedCart);
-    setAlertOpen(true);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    setQuantity(1);
+
+    // Update stock locally
+    setProduct({ ...product, stock: product.stock - actualQuantity });
+
+    // Update stock in database
+    const { error } = await supabase
+      .from("books")
+      .update({ stock: product.stock - actualQuantity })
+      .eq("id", product.id);
+
+    if (error) {
+      console.error("Failed to update stock:", error.message);
+    }
+  };
+
+  const increaseQuantity = () => {
+    if (product && quantity < product.stock) setQuantity(quantity + 1);
+  };
+
+  const decreaseQuantity = () => {
+    if (quantity > 1) setQuantity(quantity - 1);
   };
 
   if (!product)
@@ -100,109 +147,140 @@ export default function DetailsProducts() {
     );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12 font-sans">
-      <div className="flex flex-col md:flex-row gap-10">
-        {/* Left Section */}
-        <div className="flex-1">
-          {mainImage && (
-            <Image
-              src={mainImage}
-              alt={product.name}
-              width={500}
-              height={500}
-              className="rounded-xl shadow-lg object-cover w-full max-h-[500px]"
-            />
-          )}
-          <div className="flex space-x-4 mt-4 overflow-x-auto">
-            {[{ image_path: product.image }, ...multImages].map((image, idx) => {
-              const imgUrl = image.image_path?.startsWith("http")
-                ? image.image_path
-                : supabase.storage.from("products-images").getPublicUrl(image.image_path).publicUrl;
+    <div
+      className="max-w-6xl mx-auto px-4 py-6 font-sans"
+      style={{ backgroundColor: colors.hex }}
+    >
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Images */}
+        <div className="w-full lg:w-1/2">
+          <div className="rounded-2xl overflow-hidden">
+            {mainImage && (
+              <Image
+                src={mainImage}
+                alt={product.name}
+                width={600}
+                height={600}
+                className="w-full h-[500px] object-contain hover:scale-105 transition-transform duration-300"
+              />
+            )}
+          </div>
+          <div className="flex gap-3 mt-2 overflow-x-auto pb-2">
+            {[{ image_path: product.image }, ...multImages].map((img, idx) => {
+              const imgUrl = img.image_path?.startsWith("http")
+                ? img.image_path
+                : supabase.storage
+                    .from("products-images")
+                    .getPublicUrl(img.image_path).publicUrl;
               return (
                 <div
                   key={idx}
-                  className={`relative h-28 w-28 rounded-lg cursor-pointer transition duration-300 shadow-md ${
-                    mainImage === imgUrl
-                      ? "border-4 border-blue-400 scale-105"
-                      : "border-2 border-transparent hover:scale-105"
-                  }`}
                   onClick={() => setMainImage(imgUrl)}
+                  className={`relative h-20 w-20 flex-shrink-0 cursor-pointer transition-all duration-300 rounded-xl ${
+                    mainImage === imgUrl
+                      ? `ring-2 ring-[${colors.hover_color}] scale-105`
+                      : "hover:scale-105 opacity-90 hover:opacity-100"
+                  }`}
                 >
-                  <Image src={imgUrl} alt={product.name} fill className="object-cover rounded-lg" />
+                  <Image
+                    src={imgUrl}
+                    alt={product.name}
+                    fill
+                    className="object-contain rounded-xl"
+                  />
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* Right Section */}
-        <div className="flex-1 flex flex-col justify-between">
+        {/* Product Details */}
+        <div className="w-full lg:w-1/2 flex flex-col justify-between">
           <div>
-            <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-
-            <p className="text-lg mb-4 Ancizar_Serif text-gray-800">
-              Price: <span className="font-semibold">${(product.price * quantity).toFixed(2)}</span>
+            <h1
+              className="text-3xl font-bold mb-2"
+              style={{ color: colors.text_color }}
+            >
+              {product.name}
+            </h1>
+            <p
+              className="text-lg font-semibold mb-3"
+              style={{ color: colors.text_color }}
+            >
+              ${product.price.toFixed(2)}
             </p>
 
-            <div className="flex items-center space-x-4 mb-4">
-              <span className="text-lg Ancizar_Serif">Quantity:</span>
-              <button
-                onClick={handleDecrease}
-                disabled={quantity <= 1}
-                className={`border rounded-full px-3 py-1 text-xl ${
-                  quantity <= 1
-                    ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                    : "text-blue-600 border-blue-600 hover:bg-blue-600 hover:text-white transition"
-                }`}
-              >
-                −
-              </button>
-              <span className="text-xl font-semibold">{quantity}</span>
-              <button
-                onClick={handleIncrease}
-                disabled={quantity >= product.quantity}
-                className={`border rounded-full px-3 py-1 text-xl ${
-                  quantity >= product.quantity
-                    ? "text-gray-400 border-gray-300 cursor-not-allowed"
-                    : "text-blue-600 border-blue-600 hover:bg-blue-600 hover:text-white transition"
-                }`}
-              >
-                +
-              </button>
-            </div>
+            {product.stock > 0 ? (
+              <div className="flex items-center gap-3 mb-4">
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: colors.text_color }}
+                >
+                  Quantity:
+                </span>
+                <div className="flex items-center border border-gray-300 rounded-md">
+                  <button
+                    onClick={decreaseQuantity}
+                    disabled={quantity <= 1}
+                    className="px-3 py-1 text-lg font-medium hover:bg-gray-100 disabled:opacity-40"
+                  >
+                    −
+                  </button>
+                  <span className="px-4 text-lg">{quantity}</span>
+                  <button
+                    onClick={increaseQuantity}
+                    disabled={quantity >= product.stock}
+                    className="px-3 py-1 text-lg font-medium hover:bg-gray-100 disabled:opacity-40"
+                  >
+                    +
+                  </button>
+                </div>
+                <span className="ml-2 text-sm text-gray-600">
+                  {product.stock} left in stock
+                </span>
+              </div>
+            ) : (
+              <p className="text-sm text-red-600 font-semibold">Out of Stock</p>
+            )}
 
             <button
               onClick={handleAddToCart}
-              disabled={product.quantity === 0}
-              className={`w-full mt-6 border-2 border-blue-400 text-blue-400 bg-transparent font-semibold py-3 rounded hover:bg-blue-400 hover:text-white transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+              disabled={product.stock === 0}
+              className="w-full py-3 rounded-md text-lg font-semibold transition-all duration-300 mb-4"
+              style={{
+                backgroundColor:
+                  product.stock === 0 ? "#ccc" : colors.button_hex,
+                color: colors.button_text_color,
+                border: `2px solid ${colors.hover_color}`,
+              }}
             >
-              {product.quantity === 0 ? "Out of Stock" : "Add to Cart"}
+              {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
             </button>
 
-            <label className="block text-lg font-semibold mt-10 mb-2">Description:</label>
-            <p className="text-base text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {product.description || "No description available."}
-            </p>
+            <div className="mt-4 border-t border-gray-200 pt-4">
+              <h2
+                className="text-lg font-semibold mb-2"
+                style={{ color: colors.text_color }}
+              >
+                Description
+              </h2>
+              <p className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
+                {product.description || "No description available."}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      <h2 className="uppercase text-black mt-24 mb-8 ml-2 font-semibold text-lg tracking-wide">
-        You may be interested in
+      <h2
+        className="uppercase mt-16 mb-4 ml-2 font-semibold text-lg tracking-wide"
+        style={{ color: colors.text_color }}
+      >
+        You may also like
       </h2>
-
-      <div className="flex justify-center ml-2">
+      <div className="flex justify-center">
         <AllProduct products={products} />
       </div>
-
-      {alertOpen && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-md shadow-lg z-50">
-          Item added to cart successfully!
-          <button onClick={() => setAlertOpen(false)} className="ml-4 font-bold hover:text-green-200">
-            ×
-          </button>
-        </div>
-      )}
     </div>
   );
 }
