@@ -61,16 +61,16 @@ export default function ContactUs() {
   };
 
   return (
-    <div className="pt-4 pb-20 font-sans bg-white text-[#2a2a2a]">
+    <div className="pt-4 pb-20 font-sans bg-white text-[#2a2a2a]" dir="rtl">
       {/* Banner */}
-      <div className="w-full h-[300px] relative mb-6">
-        <Image
-          src="/images/contactus1.jpeg"
-          alt="Profile"
-          fill
-          className="object-cover rounded"
-        />
-      </div>
+      <div className="flex items-center justify-center relative mb-6">
+          <img
+            src="/images/contactus1e.png"
+            alt="Profile"
+            className="rounded w-[160vh] h-[70vh]"
+          />
+        </div>
+
 
       <div className="mx-auto text-center px-4 mb-16">
         <p className="text-base text-[#4a4a4a] leading-relaxed">

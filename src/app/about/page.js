@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { supabase } from "../../../lib/supabaseClient"; // عدل المسار حسب المشروع
+import { supabase } from "../../../lib/supabaseClient";
 
-// Scroll animation function
 const handleScrollAnimation = () => {
   const elements = document.querySelectorAll(".animate-scroll");
   elements.forEach((el) => {
@@ -18,11 +17,10 @@ const handleScrollAnimation = () => {
 };
 
 export default function About() {
-  const [colors, setColors] = useState({ text_color: "#2a2a2a" }); // اللون الافتراضي
+  const [colors, setColors] = useState({ text_color: "#2a2a2a" });
 
-  // Fetch colors from database
   const fetchColors = async () => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("colors")
       .select("*")
       .order("id")
@@ -35,24 +33,21 @@ export default function About() {
     fetchColors();
     window.addEventListener("scroll", handleScrollAnimation);
     handleScrollAnimation();
-    return () => {
-      window.removeEventListener("scroll", handleScrollAnimation);
-    };
+    return () => window.removeEventListener("scroll", handleScrollAnimation);
   }, []);
 
   return (
-    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-10 mt-4">
-      {/* Banner Image */}
-      <div className="w-full h-[200px] relative mb-6">
-        <Image
+    <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-10 mt-4" dir="rtl">
+      {/* Banner */}
+      <div className="mb-6 rounded">
+        <img
           src="/images/about1.jpeg"
           alt="مكتبة نجم"
-          fill
-          className="object-cover rounded"
+          className="w-[160vh] h-[70vh] rounded"
         />
       </div>
 
-      {/* ABOUT US Section */}
+      {/* About Text */}
       <div className="text-center mb-6">
         <h3
           className="text-2xl font-semibold mb-4"
@@ -69,77 +64,57 @@ export default function About() {
           شراء سهلة ومريحة من خلال الطلب الإلكتروني والتوصيل إلى جميع المناطق
           اللبنانية. تركّز مكتبة نجم على جودة الخدمة وتنوّع المحتوى لتلبية أذواق
           القرّاء بمختلف اهتماماتهم. رؤيتنا أن نكون وجهة موثوقة لكل من يبحث عن
-          كتاب مميز، ورسالتنا نشر ثقافة القراءة في كل بيت
+          كتاب مميز، ورسالتنا نشر ثقافة القراءة في كل بيت.
         </p>
       </div>
 
-      {/* Responsive Stacked Layout */}
-      <div className="flex flex-col sm:grid sm:grid-cols-2 gap-6 items-center mt-10">
-        {/* Section 1 Mobile */}
-        <div className="block sm:hidden animate-scroll">
-          <Image
-            src="/images/about2.jpeg"
-            alt="كتب ومكتبة"
-            width={300}
-            height={300}
-            className="w-full h-auto rounded shadow-lg object-cover mb-4"
-          />
-          <p className="text-justify text-sm leading-6 px-2" style={{ color: colors.text_color }}>
-            نسعى لتقديم تجربة شراء ممتعة وسهلة، مع توفير معلومات مفصلة عن كل كتاب
-            لضمان اختيار القرّاء للكتب التي تناسب اهتماماتهم. مجموعتنا متنوعة
-            لتلبي كل الأذواق
-          </p>
-        </div>
-
-        {/* Section 1 Desktop */}
-        <div className="hidden sm:block animate-scroll text-justify px-4 leading-7 text-base ml-32" style={{ color: colors.text_color }}>
+      {/* Section 1 */}
+      <section className="flex flex-col sm:flex-row items-center justify-center gap-10 px-4 sm:px-16 py-10">
+        {/* Text */}
+        <div
+          className="sm:w-1/2 text-justify leading-7 text-base animate-scroll"
+          style={{ color: colors.text_color }}
+        >
           نسعى لتقديم تجربة شراء ممتعة وسهلة، مع توفير معلومات مفصلة عن كل كتاب
           لضمان اختيار القرّاء للكتب التي تناسب اهتماماتهم. مجموعتنا متنوعة
-          لتلبي كل الأذواق
-        </div>
-        <div className="hidden sm:block animate-scroll overflow-hidden h-80">
-          <Image
-            src="/images/about2.jpeg"
-            alt="كتب ومكتبة"
-            width={450}
-            height={300}
-            className="transition-transform duration-300 ease-in-out hover:scale-110 shadow-lg object-cover rounded"
-          />
+          لتلبي كل الأذواق.
         </div>
 
-        {/* Section 2 Mobile */}
-        <div className="block sm:hidden animate-scroll mt-10">
-          <Image
-            src="/images/about3.jpeg"
-            alt="تصفح الكتب"
-            width={500}
-            height={300}
-            className="w-full h-auto rounded shadow-lg object-cover mb-4"
-          />
-          <p className="text-justify text-sm leading-6 px-2" style={{ color: colors.text_color }}>
-            نحرص على تقديم تجربة شراء مميزة وسهلة لجميع العملاء، مع توفير وصف
-            دقيق لكل كتاب ومعلومات مفصلة لتسهيل عملية الاختيار. اكتشف جمال
-            القراءة مع مكتبة نجم
-          </p>
+        {/* Image */}
+        <div className="sm:w-1/2 flex justify-center">
+        <img
+          src="/images/about2.jpeg"
+          alt="كتب ومكتبة"
+          className="w-[60vh] h-[60vh] rounded" 
+        />
+        </div>
+      </section>
+
+      {/* Section 2 */}
+      <section className="flex flex-col sm:flex-row-reverse items-center justify-center gap-10 px-4 sm:px-16 py-10">
+        {/* Text */}
+        <div
+          className="sm:w-1/2 text-justify leading-7 text-base animate-scroll"
+          style={{ color: colors.text_color }}
+        >
+          نحرص على تقديم تجربة شراء مميزة وسهلة لجميع العملاء، مع توفير وصف دقيق
+          لكل كتاب ومعلومات مفصلة لتسهيل عملية الاختيار. اكتشف جمال القراءة مع
+          مكتبة نجم.
         </div>
 
-        {/* Section 2 Desktop */}
-        <div className="hidden sm:block animate-scroll overflow-hidden h-80 ml-32">
-          <Image
-            src="/images/about3.jpeg"
-            alt="تصفح الكتب"
-            width={500}
-            height={300}
-            className="transition-transform duration-300 ease-in-out hover:scale-110 shadow-lg object-cover rounded"
-          />
+        {/* Image */}
+        <div className="sm:w-1/2 flex justify-center">
+        <img
+          src="/images/about3.jpeg"
+          alt="كتب ومكتبة"
+          className="w-[60vh] h-[60vh] rounded" 
+        />
         </div>
-        <div className="hidden sm:block animate-scroll text-justify px-4 leading-7 text-base max-w-md" style={{ color: colors.text_color }}>
-          نحرص على تقديم تجربة شراء مميزة وسهلة لجميع العملاء، مع توفير وصف
-          دقيق لكل كتاب ومعلومات مفصلة لتسهيل عملية الاختيار. اكتشف جمال
-          القراءة مع مكتبة نجم
-        </div>
-      </div>
-      <br /><br /><br /><br />
+      </section>
+
+      <br />
+      <br />
+      <br />
     </div>
   );
 }
