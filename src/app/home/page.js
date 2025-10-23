@@ -214,14 +214,14 @@ export default function Home() {
         <div className="flex items-center w-full max-w-6xl gap-4 sm:gap-8">
           <hr className="flex-1 border-t border-[#dcdcdc]" />
           <h1 className="mx-6 text-lg sm:text-xl md:text-2xl font-semibold tracking-widest uppercase text-black">
-            All Dresses
+            All Books
           </h1>
           <hr className="flex-1 border-t border-[#dcdcdc]" />
         </div>
         <div className="mt-2 mr-6">
           <span
             onClick={handleViewMore}
-            className="cursor-pointer text-pink-400 text-sm sm:text-base font-medium uppercase tracking-wide hover:underline"
+            className="cursor-pointer  text-sm sm:text-base font-medium uppercase tracking-wide hover:underline"
           >
             View More
           </span>
