@@ -12,7 +12,7 @@ export default function SearchProducts() {
   // Fetch products (all or filtered)
   async function fetchProducts(name) {
     let query = supabase
-      .from("add_products")
+      .from("books")
       .select("*")
       .order("id", { ascending: true });
 

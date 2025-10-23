@@ -62,6 +62,7 @@ export default function Header() {
         <div className="max-w-7xl mx-auto h-full flex justify-between items-center px-5">
           {/* MOBILE VIEW */}
           <div className="flex items-center md:hidden w-full">
+            <div className="flex">
             <button
               onClick={toggleMobileMenu}
               className="text-black text-2xl p-0 m-0"
@@ -70,7 +71,7 @@ export default function Header() {
             </button>
 
             {logo && (
-              <div className="ml-4 relative" style={{ width: 180, height: 70 }}>
+              <div className=" relative " style={{ width: 70, height: 70 }}>
                 <Image
                   src={logo}
                   alt="Logo"
@@ -80,6 +81,7 @@ export default function Header() {
                 />
               </div>
             )}
+            </div>
 
             <div className="flex items-center gap-3 text-black ml-auto">
               <Link href="/search">
