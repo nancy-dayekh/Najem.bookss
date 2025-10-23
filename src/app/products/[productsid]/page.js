@@ -92,47 +92,44 @@ export default function DetailsProducts() {
     setCart(savedCart);
   }, [id]);
 
-  // Add to cart with stock update
-  const handleAddToCart = async () => {
-    if (!product || product.stock === 0) return;
+  // Add to cart WITHOUT decreasing stock
+  const handleAddToCart = () => {
+    if (!product) return;
 
-    const actualQuantity = Math.min(quantity, product.stock);
+    if (product.quantity === 0) {
+      alert("Sorry, this product is out of stock");
+      return;
+    }
 
-    // Update local cart
+    if (quantity > product.quantity) {
+      alert(`Only ${product.quantity} left in stock`);
+      return;
+    }
+
     const updatedCart = [...cart];
     const index = updatedCart.findIndex((item) => item.id === product.id);
 
     if (index !== -1) {
-      updatedCart[index].quantity += actualQuantity;
+      updatedCart[index].quantity += quantity;
     } else {
       updatedCart.push({
         id: product.id,
         name: product.name,
         price: product.price,
         image: mainImage,
-        quantity: actualQuantity,
+        quantity: quantity,
       });
     }
+
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     setQuantity(1);
 
-    // Update stock locally
-    setProduct({ ...product, stock: product.stock - actualQuantity });
-
-    // Update stock in database
-    const { error } = await supabase
-      .from("books")
-      .update({ stock: product.stock - actualQuantity })
-      .eq("id", product.id);
-
-    if (error) {
-      console.error("Failed to update stock:", error.message);
-    }
+    alert("Added to cart! Complete checkout to purchase.");
   };
 
   const increaseQuantity = () => {
-    if (product && quantity < product.stock) setQuantity(quantity + 1);
+    if (product && quantity < product.quantity) setQuantity(quantity + 1);
   };
 
   const decreaseQuantity = () => {
@@ -210,7 +207,7 @@ export default function DetailsProducts() {
               ${product.price.toFixed(2)}
             </p>
 
-            {product.stock > 0 ? (
+            {product.quantity > 0 ? (
               <div className="flex items-center gap-3 mb-4">
                 <span
                   className="text-sm font-medium"
@@ -229,14 +226,14 @@ export default function DetailsProducts() {
                   <span className="px-4 text-lg">{quantity}</span>
                   <button
                     onClick={increaseQuantity}
-                    disabled={quantity >= product.stock}
+                    disabled={quantity >= product.quantity}
                     className="px-3 py-1 text-lg font-medium hover:bg-gray-100 disabled:opacity-40"
                   >
                     +
                   </button>
                 </div>
                 <span className="ml-2 text-sm text-gray-600">
-                  {product.stock} left in stock
+                  {product.quantity} left in stock
                 </span>
               </div>
             ) : (
@@ -245,16 +242,16 @@ export default function DetailsProducts() {
 
             <button
               onClick={handleAddToCart}
-              disabled={product.stock === 0}
+              disabled={product.quantity === 0}
               className="w-full py-3 rounded-md text-lg font-semibold transition-all duration-300 mb-4"
               style={{
                 backgroundColor:
-                  product.stock === 0 ? "#ccc" : colors.button_hex,
+                  product.quantity === 0 ? "#ccc" : colors.button_hex,
                 color: colors.button_text_color,
                 border: `2px solid ${colors.hover_color}`,
               }}
             >
-              {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+              {product.quantity === 0 ? "Out of Stock" : "Add to Cart"}
             </button>
 
             <div className="mt-4 border-t border-gray-200 pt-4">

@@ -59,6 +59,7 @@ export default function Checkout() {
     (parseFloat(calculateSubtotal()) + parseFloat(calculateShipping())).toFixed(
       2
     );
+
   const handleSubmit = async () => {
     if (cart.length === 0) {
       setErrorMsg("Your cart is empty.");
@@ -66,11 +67,28 @@ export default function Checkout() {
     }
 
     try {
+      // 1️⃣ تحقق من المخزون قبل الطلب
+      for (let item of cart) {
+        const { data: productData, error: fetchError } = await supabase
+          .from("books")
+          .select("quantity")
+          .eq("id", item.id)
+          .single();
+
+        if (fetchError) throw fetchError;
+
+        if ((productData.quantity || 0) < item.quantity) {
+          throw new Error(
+            `Not enough stock for ${item.name}. Available: ${productData.quantity}`
+          );
+        }
+      }
+
       const subtotal = parseFloat(calculateSubtotal());
       const shippingCost = parseFloat(calculateShipping());
       const total = parseFloat((subtotal + shippingCost).toFixed(2));
 
-      // تخزين الطلب
+      // 2️⃣ تخزين الطلب في جدول checkouts
       const { data: newCheckout, error: checkoutError } = await supabase
         .from("checkouts")
         .insert([
@@ -91,6 +109,7 @@ export default function Checkout() {
 
       if (checkoutError) throw checkoutError;
 
+      // 3️⃣ إدراج العناصر في جدول checkout_items
       const itemsData = cart.map((item) => ({
         checkout_id: newCheckout.id,
         book_id: item.id,
@@ -103,9 +122,25 @@ export default function Checkout() {
 
       if (itemsError) throw itemsError;
 
-      // تحضير رسالة للمتجر
-      const shopNumber = "96176715788"; // رقم صاحب المحل
-      const customerPhone = formData.phone.replace("+", "").trim(); // رقم العميل بدون +
+      // 4️⃣ خصم الكمية من المخزون بعد تأكيد الطلب
+      for (let item of cart) {
+        const { data: productData } = await supabase
+          .from("books")
+          .select("quantity")
+          .eq("id", item.id)
+          .single();
+
+        const newQuantity = (productData.quantity || 0) - item.quantity;
+
+        await supabase
+          .from("books")
+          .update({ quantity: newQuantity })
+          .eq("id", item.id);
+      }
+
+      // 5️⃣ تحضير رسالة WhatsApp للمتجر
+      const shopNumber = "96176715788";
+      const customerPhone = formData.phone.replace("+", "").trim();
 
       let messageForShop = `New order from ${formData.firstName} ${formData.lastName}:%0A`;
       cart.forEach((item) => {
@@ -117,13 +152,13 @@ export default function Checkout() {
 
       const waLinkShop = `https://wa.me/${shopNumber}?text=${messageForShop}`;
 
-      // تحضير رسالة للعميل لتأكيد الطلب
+      // 6️⃣ رسالة تأكيد للعميل
       let messageForCustomer = `Hello ${formData.firstName},%0AYour order has been received!%0ATotal: $${total}%0AWe will contact you soon for delivery.`;
       const waLinkCustomer = `https://wa.me/${customerPhone}?text=${messageForCustomer}`;
 
       // فتح الروابط
       window.open(waLinkShop, "_blank");
-      setTimeout(() => window.open(waLinkCustomer, "_blank"), 1000); // تفتح بعد ثانية لتجنب حظر المتصفح
+      setTimeout(() => window.open(waLinkCustomer, "_blank"), 1000);
 
       setSuccessMsg("Your order has been placed successfully!");
       setErrorMsg("");
@@ -131,12 +166,8 @@ export default function Checkout() {
       setCart([]);
       setTimeout(() => (window.location.href = "/"), 4000);
     } catch (err) {
-      console.error("Supabase insert error:", err);
-      const message =
-        err?.message ||
-        err?.details ||
-        "Failed to place order. Please check your input.";
-      setErrorMsg(message);
+      console.error("Checkout error:", err);
+      setErrorMsg(err.message || "Failed to place order.");
     }
   };
 
