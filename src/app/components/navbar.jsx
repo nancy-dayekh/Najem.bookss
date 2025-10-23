@@ -98,7 +98,7 @@ export default function Header() {
             {/* Left side: Logo */}
             <Link href="/home" className="flex items-center">
               {logo && (
-                <div className="relative" style={{ width: 260, height: 100 }}>
+                <div className="relative " style={{ width: 260, height: 70 }}>
                   <Image
                     src={logo}
                     alt="Logo"
