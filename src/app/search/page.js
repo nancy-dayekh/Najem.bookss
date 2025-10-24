@@ -2,7 +2,7 @@
 
 import { Box, TextField } from "@mui/material";
 import { useState, useEffect } from "react";
-import AllProducts from "../products/product/product";
+import AllProducts from "../books/book/product";
 import { supabase } from "../../../lib/supabaseClient"; // 👈 شيلنا .ts
 
 export default function SearchProducts() {
