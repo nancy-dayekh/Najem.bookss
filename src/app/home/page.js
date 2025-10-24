@@ -98,10 +98,6 @@ export default function Home() {
 
   const handleViewMore = () => router.push("/products");
 
-  // ✨ debug: إذا لا توجد صور، أظهر رسالة
-  if (slides.length === 0)
-    return <div>No slides found! Check Supabase console and image_url column.</div>;
-
   return (
     <div className="w-full mt-10">
       {/* ---------------- Slider ---------------- */}
