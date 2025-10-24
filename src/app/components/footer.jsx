@@ -41,7 +41,7 @@ export default function Footer() {
   return (
     <div className="flex w-full justify-center items-center">
     <footer
-      className="pt-16 pb-10 px-4 lg:px-20 mt-14 w-[145vh]"
+      className="pt-16 pb-10 px-4 lg:px-20 mt-14 w-full"
       style={{ backgroundColor: colors.footer_bg, color: colors.text_color }}
     >
       <div className="max-w-screen-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">

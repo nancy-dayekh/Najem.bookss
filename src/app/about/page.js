@@ -43,7 +43,7 @@ export default function About() {
         <img
           src="/images/about1.jpeg"
           alt="مكتبة نجم"
-          className="w-[160vh] h-[70vh] rounded"
+          className="w-full h-[70vh] rounded"
         />
       </div>
 

@@ -116,7 +116,7 @@ export default function Home() {
                   <img
                     src={slide.media_url}
                     alt={slide.title || `Slide ${index + 1}`}
-                    className="w-full h-96 md:h-[600px] object-cover"
+                    className="w-full h-96 md:h-[60vh] object-cover"
                   />
                 </div>
               ))}
