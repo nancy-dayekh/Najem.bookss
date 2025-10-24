@@ -27,7 +27,7 @@ export default function Products({ products, loading }) {
               onClick={() => handleLearnMore(product.id)}
             >
               {/* Image */}
-              <div className="w-full aspect-[1/1] bg-white overflow-hidden flex items-center justify-center border border-gray-100">
+              <div className="w-full aspect-[1/1] bg-gray-100 overflow-hidden flex items-center justify-center rounded-lg shadow-sm">
                 <Image
                   src={
                     product.image.startsWith("http")
@@ -37,19 +37,19 @@ export default function Products({ products, loading }) {
                   alt={product.name}
                   width={400}
                   height={400}
-                  className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                  className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
 
               {/* Product info */}
-              <div className="mt-2 text-left px-1">
+              <div className="mt-3 text-left px-1">
                 <h3
-                  className="text-sm sm:text-[15px] md:text-[16px] font-normal text-gray-700 truncate"
+                  className="text-[15px] sm:text-[16px] md:text-[17px] font-medium text-gray-800 group-hover:text-gray-900 transition-colors truncate"
                   title={product.name}
                 >
                   {product.name}
                 </h3>
-                <p className="mt-1 text-sm sm:text-[15px] md:text-[16px] font-semibold text-gray-900">
+                <p className="mt-1 text-[15px] sm:text-[16px] md:text-[17px] font-semibold text-gray-900 tracking-wide">
                   ${product.price}
                 </p>
               </div>
