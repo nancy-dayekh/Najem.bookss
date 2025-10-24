@@ -120,14 +120,6 @@ export default function DisplayProducts() {
               }}
             />
             {/* current price label */}
-            <div
-              className="text-sm mt-2 text-center"
-              style={{ color: colors.price_color }}
-            >
-              {selectedPrice > 0
-                ? `Showing items ≤ $${selectedPrice}`
-                : "Showing all items"}
-            </div>
           </div>
 
           <div

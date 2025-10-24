@@ -61,6 +61,20 @@ export default function Checkout() {
     );
 
   const handleSubmit = async () => {
+    // ✅ تحقق من أن جميع الحقول ممتلئة قبل تنفيذ الطلب
+    if (
+      !formData.firstName.trim() ||
+      !formData.lastName.trim() ||
+      !formData.address.trim() ||
+      !formData.phone.trim() ||
+      !formData.city.trim() ||
+      !selectedCountry.trim()
+    ) {
+      setErrorMsg("⚠️ Please fill in all required fields before completing the order.");
+      setSuccessMsg("");
+      return;
+    }
+
     if (cart.length === 0) {
       setErrorMsg("Your cart is empty.");
       return;
@@ -139,7 +153,7 @@ export default function Checkout() {
       }
 
       // 5️⃣ تحضير رسالة WhatsApp للمتجر
-      const shopNumber = "96170701800";
+      const shopNumber = "96171407764";
       const customerPhone = formData.phone.replace("+", "").trim();
 
       let messageForShop = `New order from ${formData.firstName} ${formData.lastName}:%0A`;
@@ -160,7 +174,7 @@ export default function Checkout() {
       window.open(waLinkShop, "_blank");
       setTimeout(() => window.open(waLinkCustomer, "_blank"), 1000);
 
-      setSuccessMsg("Your order has been placed successfully!");
+      setSuccessMsg("✅ Your order has been placed successfully!");
       setErrorMsg("");
       localStorage.removeItem("cart");
       setCart([]);
@@ -179,6 +193,13 @@ export default function Checkout() {
           <h2 className="text-xl sm:text-2xl font-bold mb-6">
             Delivery Information
           </h2>
+
+          {/* ✅ رسالة الخطأ */}
+          {errorMsg && (
+            <p className="mb-4 text-red-600 bg-red-100 px-4 py-2 rounded text-center">
+              {errorMsg}
+            </p>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <input
@@ -318,11 +339,6 @@ export default function Checkout() {
           {successMsg && (
             <p className="mt-4 text-green-600 font-medium text-center">
               {successMsg}
-            </p>
-          )}
-          {errorMsg && (
-            <p className="mt-4 text-red-600 font-medium text-center">
-              {errorMsg}
             </p>
           )}
         </div>
