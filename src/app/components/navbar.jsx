@@ -63,24 +63,24 @@ export default function Header() {
           {/* MOBILE VIEW */}
           <div className="flex items-center md:hidden w-full">
             <div className="flex">
-            <button
-              onClick={toggleMobileMenu}
-              className="text-black text-2xl p-0 m-0"
-            >
-              {mobileOpen ? <FaTimes /> : <FaBars />}
-            </button>
+              <button
+                onClick={toggleMobileMenu}
+                className="text-black text-2xl p-0 m-0"
+              >
+                {mobileOpen ? <FaTimes /> : <FaBars />}
+              </button>
 
-            {logo && (
-              <div className=" relative " style={{ width: 70, height: 70 }}>
-                <Image
-                  src={logo}
-                  alt="Logo"
-                  fill
-                  style={{ objectFit: "contain" }}
-                  priority
-                />
-              </div>
-            )}
+              {logo && (
+                <div className="relative" style={{ width: 70, height: 70 }}>
+                  <Image
+                    src={logo}
+                    alt="Logo"
+                    fill
+                    style={{ objectFit: "contain" }}
+                    priority
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-3 text-black ml-auto">
@@ -98,7 +98,10 @@ export default function Header() {
             {/* Left side: Logo */}
             <Link href="/home" className="flex items-center">
               {logo && (
-                <div className="relative " style={{ width: 260, height: 70 }}>
+                <div
+                  className="relative"
+                  style={{ width: 160, height: 70, marginLeft: 20 }}
+                >
                   <Image
                     src={logo}
                     alt="Logo"
