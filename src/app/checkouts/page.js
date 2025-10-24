@@ -139,7 +139,7 @@ export default function Checkout() {
       }
 
       // 5️⃣ تحضير رسالة WhatsApp للمتجر
-      const shopNumber = "96171407764";
+      const shopNumber = "96170701800";
       const customerPhone = formData.phone.replace("+", "").trim();
 
       let messageForShop = `New order from ${formData.firstName} ${formData.lastName}:%0A`;

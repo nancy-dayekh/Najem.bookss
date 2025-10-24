@@ -6,7 +6,7 @@ import { supabase } from "../../../lib/supabaseClient";
 
 export default function DisplayProducts() {
   const [products, setProducts] = useState([]);
-  const [selectedPrice, setSelectedPrice] = useState(0);
+  const [selectedPrice, setSelectedPrice] = useState(0); // 0 = no filter (show all)
   const [maxPrice, setMaxPrice] = useState(500);
   const [loading, setLoading] = useState(false);
   const [colors, setColors] = useState({
@@ -45,7 +45,7 @@ export default function DisplayProducts() {
 
     if (!error && data?.price) {
       setMaxPrice(data.price);
-      setSelectedPrice(15);
+      // لا تغيّر selectedPrice هنا حتى تظهر كل المنتجات أولاً
     }
   }
 
@@ -53,8 +53,12 @@ export default function DisplayProducts() {
   async function fetchProducts() {
     setLoading(true);
     try {
-      let query = supabase.from("books").select("*").order("id", { ascending: true });
+      let query = supabase
+        .from("books")
+        .select("*")
+        .order("id", { ascending: true });
 
+      // Apply filter only when user changes slider
       if (selectedPrice > 0) {
         query = query.lte("price", selectedPrice);
       }
@@ -70,11 +74,13 @@ export default function DisplayProducts() {
     }
   }
 
+  // Load colors and max price on mount
   useEffect(() => {
     fetchColors();
     fetchMaxPrice();
   }, []);
 
+  // Refetch when price filter changes
   useEffect(() => {
     fetchProducts();
   }, [selectedPrice]);
@@ -99,23 +105,35 @@ export default function DisplayProducts() {
           </h3>
 
           <div className="relative">
+            {/* slider */}
             <input
               type="range"
               min={0}
               max={maxPrice}
               step={1}
-              value={selectedPrice}
+              value={selectedPrice === 0 ? 15 : selectedPrice} // visually start from 15$
               onChange={(e) => setSelectedPrice(Number(e.target.value))}
               className="w-full h-2 rounded-lg appearance-none cursor-pointer"
               style={{
                 backgroundColor: colors.slider_bg,
-                accentColor: colors.text_color ,
+                accentColor: colors.text_color,
               }}
             />
-        
+            {/* current price label */}
+            <div
+              className="text-sm mt-2 text-center"
+              style={{ color: colors.price_color }}
+            >
+              {selectedPrice > 0
+                ? `Showing items ≤ $${selectedPrice}`
+                : "Showing all items"}
+            </div>
           </div>
 
-          <div className="flex justify-between text-xs mt-1 mb-6" style={{ color: colors.text_color }}>
+          <div
+            className="flex justify-between text-xs mt-1 mb-6"
+            style={{ color: colors.text_color }}
+          >
             <span>$0</span>
             <span>${maxPrice}</span>
           </div>
