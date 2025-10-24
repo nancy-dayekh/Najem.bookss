@@ -11,7 +11,7 @@ const fallbackImage = "/default-product.png";
 export default function NewCollection() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [startIndex, setStartIndex] = useState(0); // index of first product in view
+  const [startIndex, setStartIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
 
@@ -48,23 +48,21 @@ export default function NewCollection() {
   const visibleCount = columns * rows;
   const totalProducts = products.length;
 
-  // Prepare visible products
   const displayedProducts = [];
   for (let i = 0; i < visibleCount; i++) {
     displayedProducts.push(products[(startIndex + i) % totalProducts]);
   }
 
-  // Arrow handlers: shift images
   const handleNext = () => setStartIndex((prev) => (prev + 1) % totalProducts);
   const handlePrevious = () =>
     setStartIndex((prev) => (prev - 1 + totalProducts) % totalProducts);
 
-  const handleProductClick = (id) => router.push(`/products/${id}`);
+  const handleProductClick = (id) => router.push(`/books/${id}`);
 
   if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-pink-500 border-solid"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-blue-500 border-solid"></div>
       </div>
     );
   }
@@ -78,7 +76,7 @@ export default function NewCollection() {
   return (
     <section className="max-w-6xl mx-auto px-5 py-10 mt-[30px] mb-[40px]">
       {/* Title */}
-      <div className="flex items-center justify-center mb-12 md:mb-20">
+      <div className="flex items-center justify-center mb-12 md:mb-20 w-full max-w-6xl mx-auto px-4">
         <hr className="flex-1 border-t-2 border-gray-300 opacity-70" />
         <h1 className="mx-6 text-lg sm:text-xl md:text-2xl font-semibold tracking-widest uppercase text-black">
           New Collection
@@ -92,9 +90,9 @@ export default function NewCollection() {
         <button
           onClick={handlePrevious}
           aria-label="Previous"
-          className="absolute top-1/2 left-0 -translate-y-1/2 w-10 h-10 bg-white shadow rounded-full hover:bg-pink-50 flex items-center justify-center z-20"
+          className="absolute top-1/2 left-0 -translate-y-1/2 w-10 h-10 bg-white shadow-lg rounded-full hover:bg-blue-100 flex items-center justify-center z-20 transition-all duration-300"
         >
-          <FiChevronLeft size={24} className="text-pink-600" />
+          <FiChevronLeft size={24} className="text-blue-500" />
         </button>
 
         {/* Product Grid */}
@@ -110,10 +108,10 @@ export default function NewCollection() {
               product && (
                 <div
                   key={idx}
-                  className="group relative cursor-pointer overflow-hidden rounded-md shadow-md"
+                  className="group relative cursor-pointer overflow-hidden rounded-md shadow-md transition-transform transform hover:scale-105"
                   onClick={() => handleProductClick(product.id)}
                 >
-                  <div className="relative w-full h-[200px] sm:h-[250px] md:h-[300px] overflow-hidden rounded-lg">
+                  <div className="relative w-full h-[150px] sm:h-[180px] md:h-[200px] overflow-hidden rounded-lg">
                     <Image
                       src={
                         product.image?.startsWith("http")
@@ -127,6 +125,7 @@ export default function NewCollection() {
                     />
                   </div>
 
+                  {/* Hover overlay */}
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <h3 className="text-white font-semibold text-base">
                       {product.name}
@@ -144,9 +143,9 @@ export default function NewCollection() {
         <button
           onClick={handleNext}
           aria-label="Next"
-          className="absolute top-1/2 right-0 -translate-y-1/2 w-10 h-10 bg-white shadow rounded-full hover:bg-pink-50 flex items-center justify-center z-20"
+          className="absolute top-1/2 right-0 -translate-y-1/2 w-10 h-10 bg-white shadow-lg rounded-full hover:bg-blue-100 flex items-center justify-center z-20 transition-all duration-300"
         >
-          <FiChevronRight size={24} className="text-pink-600" />
+          <FiChevronRight size={24} className="text-blue-500" />
         </button>
       </div>
     </section>

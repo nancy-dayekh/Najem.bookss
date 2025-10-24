@@ -9,11 +9,11 @@ export default function Products({ products, loading }) {
   const displayedProducts = Array.isArray(products) ? products : [];
 
   const handleLearnMore = (productId) => {
-    router.push(`/products/${productId}`);
+    router.push(`/books/${productId}`);
   };
 
   return (
-    <div className="mt-6 px-4 sm:px-6 w-full">
+    <div className="mt-6 px-4 sm:px-6 w-full font-sans">
       {loading ? (
         <div className="flex justify-center items-center h-48">
           <div className="w-12 h-12 border-4 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
@@ -27,7 +27,7 @@ export default function Products({ products, loading }) {
               onClick={() => handleLearnMore(product.id)}
             >
               {/* Image */}
-              <div className="w-full aspect-[1/1] bg-gray-100 overflow-hidden flex items-center justify-center">
+              <div className="w-full aspect-[1/1] bg-white overflow-hidden flex items-center justify-center border border-gray-100">
                 <Image
                   src={
                     product.image.startsWith("http")
@@ -37,19 +37,19 @@ export default function Products({ products, loading }) {
                   alt={product.name}
                   width={400}
                   height={400}
-                  className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                 />
               </div>
 
               {/* Product info */}
               <div className="mt-2 text-left px-1">
                 <h3
-                  className="font-sans text-[14px] sm:text-[15px] md:text-[16px] text-gray-900 truncate"
+                  className="text-sm sm:text-[15px] md:text-[16px] font-normal text-gray-700 truncate"
                   title={product.name}
                 >
                   {product.name}
                 </h3>
-                <p className="mt-1 font-sans text-[14px] sm:text-[15px] md:text-[16px] font-medium text-black">
+                <p className="mt-1 text-sm sm:text-[15px] md:text-[16px] font-semibold text-gray-900">
                   ${product.price}
                 </p>
               </div>

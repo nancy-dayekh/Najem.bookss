@@ -55,36 +55,41 @@ export default function ContactUs() {
   };
 
   const mainColor = colors || {
-    button_hex: "#ec4899", // fallback pink
+    button_hex: "", // fallback pink
     button_hover_color: "#f472b6",
     text_color: "#fff",
   };
 
   return (
-    <div className="pt-4 pb-20 font-sans bg-white text-[#2a2a2a]" dir="rtl">
+    <div
+      className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-10 mt-4"
+      dir="rtl"
+    >
       {/* Banner */}
-      <div className="flex items-center justify-center relative mb-6">
-          <img
-            src="/images/contactus1e.png"
-            alt="Profile"
-            className="rounded w-[160vh] h-[70vh]"
-          />
-        </div>
-
+      <div className="mb-6 rounded">
+        <img
+          src="/images/contactus1e.png"
+          alt="Profile"
+          className="w-full h-[70vh] rounded"
+        />
+      </div>
 
       <div className="mx-auto text-center px-4 mb-16">
         <p className="text-base text-[#4a4a4a] leading-relaxed">
           <strong>عن مكتبة نجم</strong>
           <br />
-          مكتبة نجم منصة لبيع الكتب والروايات بأسعار مناسبة، مع توصيل لجميع المناطق اللبنانية.  
-          هدفنا توفير تجربة شراء سهلة وممتعة ونشر ثقافة القراءة في كل بيت.
+          مكتبة نجم منصة لبيع الكتب والروايات بأسعار مناسبة، مع توصيل لجميع
+          المناطق اللبنانية. هدفنا توفير تجربة شراء سهلة وممتعة ونشر ثقافة
+          القراءة في كل بيت.
         </p>
       </div>
 
       {/* Form Container */}
       <div className="max-w-[1200px] mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-semibold mb-3 tracking-wide">تواصل معنا</h2>
+          <h2 className="text-3xl font-semibold mb-3 tracking-wide">
+            تواصل معنا
+          </h2>
         </div>
 
         <h3 className="text-2xl font-bold mb-3">أرسل لنا رسالة</h3>
@@ -132,7 +137,9 @@ export default function ContactUs() {
 
           {/* Email */}
           <div>
-            <label className="block text-m font-bold mb-1">البريد الإلكتروني</label>
+            <label className="block text-m font-bold mb-1">
+              البريد الإلكتروني
+            </label>
             <input
               type="email"
               value={form.email}
@@ -161,20 +168,22 @@ export default function ContactUs() {
             <button
               type="submit"
               disabled={loading}
-              className="border-2 font-semibold py-3 px-10 rounded transition duration-300 hover:scale-105"
+              className="font-bold py-3 px-12 rounded-md transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 relative overflow-hidden group"
               style={{
-                borderColor: mainColor.button_hex,
-                color: mainColor.text_color,
-                backgroundColor: "transparent",
+                background: `linear-gradient(135deg, ${mainColor.button_hex} 0%, ${mainColor.button_hover_color} 100%)`,
+                color: mainColor.button_text_color || mainColor.text_color,
+                border: `2px solid ${mainColor.button_hex}`,
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = mainColor.button_hover_color)
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
             >
-              {loading ? "جاري الإرسال..." : "أرسل الرسالة"}
+              {/* Hover shine overlay */}
+              <span
+                className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-25 transition-all duration-300 rounded-md"
+                style={{ mixBlendMode: "overlay" }}
+              ></span>
+
+              <span className="relative">
+                {loading ? "جاري الإرسال..." : "أرسل الرسالة"}
+              </span>
             </button>
           </div>
         </form>

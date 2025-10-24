@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import AllProduct from "../product/product";
+import AllProduct from "../book/product";
 import { supabase } from "../../../../lib/supabaseClient";
 
 export default function DetailsProducts() {
@@ -92,19 +92,10 @@ export default function DetailsProducts() {
     setCart(savedCart);
   }, [id]);
 
-  // Add to cart WITHOUT decreasing stock
+  // Add to cart (without alerts)
   const handleAddToCart = () => {
-    if (!product) return;
-
-    if (product.quantity === 0) {
-      alert("Sorry, this product is out of stock");
+    if (!product || product.quantity === 0 || quantity > product.quantity)
       return;
-    }
-
-    if (quantity > product.quantity) {
-      alert(`Only ${product.quantity} left in stock`);
-      return;
-    }
 
     const updatedCart = [...cart];
     const index = updatedCart.findIndex((item) => item.id === product.id);
@@ -124,8 +115,6 @@ export default function DetailsProducts() {
     setCart(updatedCart);
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     setQuantity(1);
-
-    alert("Added to cart! Complete checkout to purchase.");
   };
 
   const increaseQuantity = () => {
@@ -240,18 +229,27 @@ export default function DetailsProducts() {
               <p className="text-sm text-red-600 font-semibold">Out of Stock</p>
             )}
 
+            {/* 💎 Add to Cart Button - Elegant Gradient Design */}
             <button
               onClick={handleAddToCart}
               disabled={product.quantity === 0}
-              className="w-full py-3 rounded-md text-lg font-semibold transition-all duration-300 mb-4"
+              className="font-bold py-3 px-12 rounded-md transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 relative overflow-hidden group w-full text-lg"
               style={{
-                backgroundColor:
-                  product.quantity === 0 ? "#ccc" : colors.button_hex,
+                background:
+                  product.quantity === 0
+                    ? "#ccc"
+                    : `linear-gradient(135deg, ${colors.button_hex} 0%, ${colors.button_hover_color} 100%)`,
                 color: colors.button_text_color,
-                border: `2px solid ${colors.hover_color}`,
+                border: `2px solid ${colors.button_hex}`,
               }}
             >
-              {product.quantity === 0 ? "Out of Stock" : "Add to Cart"}
+              <span
+                className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-25 transition-all duration-300 rounded-md"
+                style={{ mixBlendMode: "overlay" }}
+              ></span>
+              <span className="relative">
+                {product.quantity === 0 ? "Out of Stock" : "Add to Cart"}
+              </span>
             </button>
 
             <div className="mt-4 border-t border-gray-200 pt-4">

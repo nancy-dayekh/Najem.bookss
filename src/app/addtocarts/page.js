@@ -12,9 +12,20 @@ export default function ShoppingCart() {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [quantities, setQuantities] = useState({});
   const [isClient, setIsClient] = useState(false);
+  const [colors, setColors] = useState(null); // fetch colors from db
 
   useEffect(() => setIsClient(true), []);
-
+  useEffect(() => {
+    async function fetchColors() {
+      const { data, error } = await supabase
+        .from("colors")
+        .select("*")
+        .order("id");
+      if (error) console.error(error);
+      else setColors(data?.[0] || null); // take first color row
+    }
+    fetchColors();
+  }, []);
   // Load cart from localStorage
   useEffect(() => {
     if (!isClient) return;
@@ -57,9 +68,13 @@ export default function ShoppingCart() {
     if (cart.length > 0 && isClient) fetchQuantities();
   }, [cart, isClient]);
 
-  const handleBackToShop = () => router.push("/products");
+  const handleBackToShop = () => router.push("/books");
   const handleCheckouts = () => router.push("/checkouts");
-
+  const mainColor = colors || {
+    button_hex: "", // fallback pink
+    button_hover_color: "#f472b6",
+    text_color: "#fff",
+  };
   const handleIncrease = (itemId) => {
     setCart((prevCart) =>
       prevCart.map((item) =>
@@ -121,7 +136,9 @@ export default function ShoppingCart() {
               <p className="text-gray-700 text-xs sm:text-sm mt-1">
                 Price: ${(item.price * item.quantity).toFixed(2)}
               </p>
-              <p className="text-gray-700 text-xs sm:text-sm">Size: {item.size}</p>
+              <p className="text-gray-700 text-xs sm:text-sm">
+                Size: {item.size}
+              </p>
 
               <div className="flex items-center space-x-2 sm:space-x-4 mt-2 sm:mt-3">
                 <button
@@ -174,16 +191,26 @@ export default function ShoppingCart() {
           </h3>
           <button
             onClick={handleCheckouts}
-            className="bg-[#E1E6FE] hover:bg-[#c8d0fb] text-black font-bold py-2 px-4 sm:px-6 rounded-xl"
+            disabled={cart.length === 0}
+            className="font-bold py-3 px-12 rounded-md transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 relative overflow-hidden group"
+            style={{
+              background: `linear-gradient(135deg, ${mainColor.button_hex} 0%, ${mainColor.button_hover_color} 100%)`,
+              color: mainColor.button_text_color || mainColor.text_color,
+              border: `2px solid ${mainColor.button_hex}`,
+            }}
           >
-            Checkout
+            <span
+              className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-25 transition-all duration-300 rounded-md"
+              style={{ mixBlendMode: "overlay" }}
+            ></span>
+            <span className="relative">Checkout</span>
           </button>
         </div>
 
         <div className="mt-4">
           <button
             onClick={handleBackToShop}
-            className="border border-[#E1E6FE] text-black hover:bg-[#E1E6FE] hover:text-black font-bold py-2 px-4 sm:px-6 rounded-xl text-xs sm:text-sm"
+            className="border border-[#E1E6FE] text-black hover:bg-[#E1E6FE] hover:text-black font-bold py-2 px-4 sm:px-6 text-xs sm:text-sm"
           >
             Back to Shop
           </button>

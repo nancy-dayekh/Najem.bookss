@@ -18,34 +18,28 @@ export default function Header() {
   const [logo, setLogo] = useState("");
   const [colors, setColors] = useState(null);
   const pathname = usePathname();
-  const navItems = ["Home", "Products", "About", "Contact"];
+  const navItems = ["Home", "Books", "About", "Contact"];
 
-  // Fetch logo and colors from Supabase
   useEffect(() => {
-    async function fetchLogo() {
-      const { data, error } = await supabase
-        .from("logos")
-        .select("logo_url")
-        .order("id", { ascending: false })
-        .limit(1)
-        .single();
-      if (data?.logo_url) setLogo(data.logo_url);
-      if (error) console.error("Error fetching logo:", error.message);
+    async function fetchData() {
+      const [{ data: logoData }, { data: colorData }] = await Promise.all([
+        supabase
+          .from("logos")
+          .select("logo_url")
+          .order("id", { ascending: false })
+          .limit(1)
+          .single(),
+        supabase
+          .from("colors")
+          .select("*")
+          .order("id", { ascending: false })
+          .limit(1)
+          .single(),
+      ]);
+      if (logoData?.logo_url) setLogo(logoData.logo_url);
+      if (colorData) setColors(colorData);
     }
-
-    async function fetchColors() {
-      const { data, error } = await supabase
-        .from("colors")
-        .select("*")
-        .order("id", { ascending: false })
-        .limit(1)
-        .single();
-      if (data) setColors(data);
-      if (error) console.error("Error fetching colors:", error.message);
-    }
-
-    fetchLogo();
-    fetchColors();
+    fetchData();
   }, []);
 
   const mainColor = colors || {
@@ -58,49 +52,48 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-0 w-full z-50 shadow-md h-20 bg-white">
-        <div className="max-w-7xl mx-auto h-full flex justify-between items-center px-5">
-          {/* MOBILE VIEW */}
+      <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-gradient-to-r from-pink-50/90 via-white/70 to-pink-50/90 shadow-xl animate-fade-in-down">
+        <div className="max-w-7xl mx-auto h-24 flex justify-between items-center px-6 md:px-10">
+          {/* Mobile */}
           <div className="flex items-center md:hidden w-full">
-            <div className="flex">
-              <button
-                onClick={toggleMobileMenu}
-                className="text-black text-2xl p-0 m-0"
+            <button
+              onClick={toggleMobileMenu}
+              className="text-2xl text-black hover:text-sky-400 transition transform hover:scale-110"
+            >
+              {mobileOpen ? <FaTimes /> : <FaBars />}
+            </button>
+            {logo && (
+              <div
+                className="relative ml-4 animate-bounce"
+                style={{ width: 70, height: 70 }}
               >
-                {mobileOpen ? <FaTimes /> : <FaBars />}
-              </button>
-
-              {logo && (
-                <div className="relative" style={{ width: 70, height: 70 }}>
-                  <Image
-                    src={logo}
-                    alt="Logo"
-                    fill
-                    style={{ objectFit: "contain" }}
-                    priority
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center gap-3 text-black ml-auto">
+                <Image
+                  src={logo}
+                  alt="Logo"
+                  fill
+                  style={{ objectFit: "contain" }}
+                  priority
+                />
+              </div>
+            )}
+            <div className="flex items-center gap-4 ml-auto text-black">
               <Link href="/search">
-                <FaSearch className="text-[20px]" />
+                <FaSearch className="text-lg hover:scale-125 transition-all" />
               </Link>
               <Link href="/addtocarts">
-                <FaShoppingCart className="text-[20px]" />
+                <FaShoppingCart className="text-lg hover:scale-125 transition-all" />
               </Link>
             </div>
           </div>
 
-          {/* DESKTOP VIEW */}
+          {/* Desktop */}
           <div className="hidden md:flex justify-between items-center w-full">
-            {/* Left side: Logo */}
+            {/* Logo */}
             <Link href="/home" className="flex items-center">
               {logo && (
                 <div
-                  className="relative"
-                  style={{ width: 160, height: 70, marginLeft: 20 }}
+                  className="relative animate-bounce"
+                  style={{ width: 150, height: 70 }}
                 >
                   <Image
                     src={logo}
@@ -113,78 +106,64 @@ export default function Header() {
               )}
             </Link>
 
-            {/* Center: Nav links */}
-            <nav className="flex items-center gap-14 uppercase font-semibold text-[15px] tracking-wide justify-center flex-1">
+            {/* Nav */}
+            <nav className="flex items-center gap-16 text-lg font-bold tracking-widest uppercase">
               {navItems.map((item) => {
                 const route = `/${item.toLowerCase()}`;
                 const isActive = pathname === route;
                 return (
-                  <Link key={item} href={route} className="relative group">
+                  <Link
+                    key={item}
+                    href={route}
+                    className="relative group transition-all duration-300"
+                    style={{ color: mainColor.text_color }}
+                  >
+                    {item}
                     <span
-                      className="text-base hover:opacity-90"
-                      style={{ color: mainColor.text_color }}
-                    >
-                      {item}
-                    </span>
-                    <span
-                      className="absolute left-0 bottom-[-4px] w-full h-[2px] transition-all"
-                      style={{
-                        backgroundColor: isActive
-                          ? mainColor.text_color
-                          : "transparent",
-                      }}
+                      className={`absolute left-0 bottom-0 h-1 w-0 group-hover:w-full transition-all duration-500 rounded bg-sky-400`}
                     ></span>
                   </Link>
                 );
               })}
             </nav>
 
-            {/* Right side: Icons */}
-            <div className="flex items-center gap-4">
+            {/* Icons */}
+            <div className="flex items-center gap-6 text-black">
               <Link href="/search">
-                <FaSearch
-                  className="text-lg"
-                  style={{ color: mainColor.text_color }}
-                />
+                <FaSearch className="text-lg hover:scale-125 hover:text-sky-400 transition-all" />
               </Link>
               <Link href="/addtocarts">
-                <FaShoppingCart
-                  className="text-lg"
-                  style={{ color: mainColor.text_color }}
-                />
+                <FaShoppingCart className="text-lg hover:scale-125 hover:text-sky-400 transition-all" />
               </Link>
             </div>
           </div>
         </div>
 
-        {/* MOBILE DRAWER */}
+        {/* Mobile Drawer */}
         {mobileOpen && (
-          <div className="md:hidden fixed top-0 left-0 h-screen w-64 bg-white z-50 shadow-xl p-6 flex flex-col transition-transform duration-300 ease-in-out">
-            <div className="flex items-center justify-between mb-4">
+          <div className="md:hidden fixed top-0 left-0 h-screen w-64 bg-gradient-to-b from-pink-50/95 via-white/90 to-pink-100 shadow-2xl p-6 flex flex-col transition-transform duration-500 ease-in-out backdrop-blur-xl animate-slide-in-left">
+            <div className="flex items-center justify-between mb-5">
               <h1
-                className="text-[17px] font-bold"
+                className="text-xl font-bold"
                 style={{ color: mainColor.text_color }}
               >
                 Menu
               </h1>
-              <button
-                onClick={() => setMobileOpen(false)}
-                className="text-2xl"
-                style={{ color: mainColor.text_color }}
-              >
-                <FaTimes />
+              <button onClick={toggleMobileMenu} className="text-2xl">
+                <FaTimes style={{ color: mainColor.text_color }} />
               </button>
             </div>
-
-            <hr className="border-gray-200 mb-4" />
-
-            <ul className="flex flex-col gap-3">
+            <ul className="flex flex-col gap-4">
               {navItems.map((item) => (
                 <li key={item}>
                   <Link
                     href={`/${item.toLowerCase()}`}
-                    className="flex items-center gap-3 px-4 py-2 text-[17px] font-semibold rounded-lg transition-all"
-                    style={{ color: mainColor.text_color }}
+                    onClick={() => setMobileOpen(false)}
+                    className="block px-4 py-3 text-lg font-semibold rounded-lg hover:scale-105 transition-all"
+                    style={{
+                      color: mainColor.text_color,
+                      backgroundColor: "transparent",
+                    }}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.backgroundColor =
                         mainColor.button_hover_color)
@@ -192,36 +171,30 @@ export default function Header() {
                     onMouseLeave={(e) =>
                       (e.currentTarget.style.backgroundColor = "transparent")
                     }
-                    onClick={() => setMobileOpen(false)}
                   >
                     {item}
                   </Link>
                 </li>
               ))}
             </ul>
-
-            <hr className="border-gray-200 my-4" />
-
-            <div className="text-sm space-y-3">
+            <div className="mt-8 text-sm space-y-2">
               <p
-                className="font-semibold text-[15px]"
+                className="font-semibold mb-2"
                 style={{ color: mainColor.text_color }}
               >
                 Need help?
               </p>
               <div
-                className="flex items-center gap-2 cursor-pointer"
+                className="flex items-center gap-2"
                 style={{ color: mainColor.text_color }}
               >
-                <FaPhone size={14} />
-                <span>+961 71 407 764</span>
+                <FaPhone size={14} /> +961 71 407 764
               </div>
               <div
-                className="flex items-center gap-2 cursor-pointer"
+                className="flex items-center gap-2"
                 style={{ color: mainColor.text_color }}
               >
-                <FaEnvelope size={14} />
-                <span>poupee.dresses1@gmail.com</span>
+                <FaEnvelope size={14} /> poupee.dresses1@gmail.com
               </div>
             </div>
           </div>
@@ -229,7 +202,7 @@ export default function Header() {
       </header>
 
       {/* Spacer */}
-      <div className="mt-24" />
+      <div className="mt-28" />
     </>
   );
 }

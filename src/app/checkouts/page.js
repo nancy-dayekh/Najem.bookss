@@ -17,13 +17,29 @@ export default function Checkout() {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [colors, setColors] = useState(null); // fetch colors from db
 
   // Load cart from localStorage
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(storedCart);
   }, []);
-
+  useEffect(() => {
+    async function fetchColors() {
+      const { data, error } = await supabase
+        .from("colors")
+        .select("*")
+        .order("id");
+      if (error) console.error(error);
+      else setColors(data?.[0] || null); // take first color row
+    }
+    fetchColors();
+  }, []);
+  const mainColor = colors || {
+    button_hex: "", // fallback pink
+    button_hover_color: "#f472b6",
+    text_color: "#fff",
+  };
   // Fetch shipping info from Supabase
   useEffect(() => {
     const fetchShipping = async () => {
@@ -70,7 +86,9 @@ export default function Checkout() {
       !formData.city.trim() ||
       !selectedCountry.trim()
     ) {
-      setErrorMsg("⚠️ Please fill in all required fields before completing the order.");
+      setErrorMsg(
+        "⚠️ Please fill in all required fields before completing the order."
+      );
       setSuccessMsg("");
       return;
     }
@@ -331,7 +349,12 @@ export default function Checkout() {
 
           <button
             onClick={handleSubmit}
-            className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold py-3 rounded transition duration-300"
+            className=" w-full font-bold py-3 px-12 rounded-md transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105 relative overflow-hidden group"
+            style={{
+              background: `linear-gradient(135deg, ${mainColor.button_hex} 0%, ${mainColor.button_hover_color} 100%)`,
+              color: mainColor.button_text_color || mainColor.text_color,
+              border: `2px solid ${mainColor.button_hex}`,
+            }}
           >
             Complete Order
           </button>

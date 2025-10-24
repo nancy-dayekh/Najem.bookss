@@ -1,12 +1,11 @@
 "use client";
-
 import { useState, useEffect } from "react";
-import Products from "./product/product";
+import Products from "./book/product";
 import { supabase } from "../../../lib/supabaseClient";
 
 export default function DisplayProducts() {
   const [products, setProducts] = useState([]);
-  const [selectedPrice, setSelectedPrice] = useState(0); // 0 = no filter (show all)
+  const [selectedPrice, setSelectedPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(500);
   const [loading, setLoading] = useState(false);
   const [colors, setColors] = useState({
@@ -42,11 +41,7 @@ export default function DisplayProducts() {
       .order("price", { ascending: false })
       .limit(1)
       .single();
-
-    if (!error && data?.price) {
-      setMaxPrice(data.price);
-      // لا تغيّر selectedPrice هنا حتى تظهر كل المنتجات أولاً
-    }
+    if (!error && data?.price) setMaxPrice(data.price);
   }
 
   // Fetch products with optional price filter
@@ -57,15 +52,9 @@ export default function DisplayProducts() {
         .from("books")
         .select("*")
         .order("id", { ascending: true });
-
-      // Apply filter only when user changes slider
-      if (selectedPrice > 0) {
-        query = query.lte("price", selectedPrice);
-      }
-
+      if (selectedPrice > 0) query = query.lte("price", selectedPrice);
       const { data, error } = await query;
       if (error) throw error;
-
       setProducts(data || []);
     } catch (err) {
       console.error("Error fetching products:", err);
@@ -74,56 +63,67 @@ export default function DisplayProducts() {
     }
   }
 
-  // Load colors and max price on mount
   useEffect(() => {
     fetchColors();
     fetchMaxPrice();
   }, []);
 
-  // Refetch when price filter changes
   useEffect(() => {
     fetchProducts();
   }, [selectedPrice]);
 
   return (
     <div className="w-full px-4 sm:px-6 lg:px-10 mt-28">
+      {/* Section Title */}
       <h3
-        className="text-center mt-20 mb-8 text-3xl font-medium tracking-wide font-sans"
+        className="text-center mt-20 mb-12 text-3xl font-semibold tracking-wide font-sans"
         style={{ color: colors.text_color }}
       >
         All Books
       </h3>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Filter Section */}
-        <div className="lg:col-span-3 mt-6 ml-4">
-          <h3
-            className="text-[1.5rem] italic leading-tight truncate mb-3"
-            style={{ color: colors.text_color }}
-          >
-            Filter by Price
-          </h3>
+        <div className="lg:col-span-3 mt-6">
+    <h3
+  className="text-2xl mb-6 font-semibold tracking-wide font-[Playfair_Display]"
+  style={{ color: colors.text_color }}
+>
+  Filter by Price
+</h3>
 
-          <div className="relative">
-            {/* slider */}
+
+          <div className="relative w-full">
+            {/* Slider */}
             <input
               type="range"
               min={0}
               max={maxPrice}
               step={1}
-              value={selectedPrice === 0 ? 15 : selectedPrice} // visually start from 15$
+              value={selectedPrice}
               onChange={(e) => setSelectedPrice(Number(e.target.value))}
-              className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-2 rounded-lg appearance-none cursor-pointer transition-all"
               style={{
                 backgroundColor: colors.slider_bg,
                 accentColor: colors.text_color,
               }}
             />
-            {/* current price label */}
+            {/* Current price label */}
+            <div
+              className="absolute -top-3 text-sm font-semibold"
+              style={{
+                left: `${(selectedPrice / maxPrice) * 100 || 0}%`,
+                transform: "translateX(-50%)",
+                color: colors.text_color,
+              }}
+            >
+              ${selectedPrice === 0 ? "All" : selectedPrice}
+            </div>
           </div>
 
+          {/* Min-Max Labels */}
           <div
-            className="flex justify-between text-xs mt-1 mb-6"
+            className="flex justify-between text-xs mt-2 mb-6"
             style={{ color: colors.text_color }}
           >
             <span>$0</span>
