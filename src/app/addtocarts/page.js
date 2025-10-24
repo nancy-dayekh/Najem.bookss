@@ -130,7 +130,7 @@ export default function ShoppingCart() {
                   className={`border rounded-full px-2 py-1 sm:px-3 sm:py-1 text-base ${
                     item.quantity <= 1
                       ? "text-gray-300 border-gray-300 cursor-not-allowed"
-                      : "text-pink-500 border-pink-500 hover:bg-pink-500 hover:text-white transition"
+                      : "text-[#E1E6FE] border-[#E1E6FE] hover:bg-[#E1E6FE] hover:text-black transition"
                   }`}
                 >
                   −
@@ -148,7 +148,7 @@ export default function ShoppingCart() {
                     quantities[item.id] !== undefined &&
                     item.quantity >= quantities[item.id]
                       ? "text-gray-300 border-gray-300 cursor-not-allowed"
-                      : "text-pink-500 border-pink-500 hover:bg-pink-500 hover:text-white transition"
+                      : "text-[#E1E6FE] border-[#E1E6FE] hover:bg-[#E1E6FE] hover:text-black transition"
                   }`}
                 >
                   +
@@ -157,7 +157,7 @@ export default function ShoppingCart() {
             </div>
 
             <button
-              className="absolute right-3 top-3 text-pink-500 hover:text-pink-700 text-lg sm:text-xl"
+              className="absolute right-3 top-3 text-[#E1E6FE] hover:text-[#c8d0fb] text-lg sm:text-xl"
               onClick={() => {
                 setItemToDelete(item.id);
                 setDialogOpen(true);
@@ -174,7 +174,7 @@ export default function ShoppingCart() {
           </h3>
           <button
             onClick={handleCheckouts}
-            className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 sm:px-6 rounded-xl"
+            className="bg-[#E1E6FE] hover:bg-[#c8d0fb] text-black font-bold py-2 px-4 sm:px-6 rounded-xl"
           >
             Checkout
           </button>
@@ -183,7 +183,7 @@ export default function ShoppingCart() {
         <div className="mt-4">
           <button
             onClick={handleBackToShop}
-            className="border border-pink-500 text-pink-500 hover:bg-pink-500 hover:text-white font-bold py-2 px-4 sm:px-6 rounded-xl text-xs sm:text-sm"
+            className="border border-[#E1E6FE] text-black hover:bg-[#E1E6FE] hover:text-black font-bold py-2 px-4 sm:px-6 rounded-xl text-xs sm:text-sm"
           >
             Back to Shop
           </button>

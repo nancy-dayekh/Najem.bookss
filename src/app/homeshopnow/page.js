@@ -46,7 +46,8 @@ export default function HomepageBanner() {
   if (!banner || !colors) return <div>Loading...</div>;
 
   return (
-    <div className="flex flex-col-reverse sm:flex-row items-center justify-between px-4 sm:px-12 py-10 gap-8 sm:gap-6 w-full">
+    <div className="flex w-full justify-center items-center">
+    <div className="flex flex-col sm:flex-row items-center justify-center  px-4 sm:px-12 py-10 gap-8 sm:gap-6 w-[145vh]">
       {/* Left Section: Text + Button */}
       <div className="w-full sm:w-1/2 text-center sm:text-left lg:ml-20">
         <h2
@@ -91,6 +92,7 @@ export default function HomepageBanner() {
           />
         </div>
       </div>
+    </div>
     </div>
   );
 }

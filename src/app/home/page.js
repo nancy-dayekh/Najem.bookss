@@ -5,12 +5,11 @@ import { supabase } from "../../../lib/supabaseClient";
 import NewCollection from "../newcollection/page";
 import Products from "../products/product/product";
 import HomeshopNow from "../homeshopnow/page";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
-  const handleViewMore = () => router.push("/products");
 
-  // ✅ Fixed for JS (remove TypeScript types)
   const [slides, setSlides] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const timeoutRef = useRef(null);
@@ -18,7 +17,7 @@ export default function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch slides from Supabase
+  // ---------------- Fetch Slides ----------------
   useEffect(() => {
     async function fetchSlides() {
       try {
@@ -35,10 +34,32 @@ export default function Home() {
     fetchSlides();
   }, []);
 
-  // Scroll animation
+  // ---------------- Autoplay ----------------
+  useEffect(() => {
+    if (slides.length === 0) return;
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
+    timeoutRef.current = setTimeout(() => {
+      setCurrentIndex(prev => (prev === slides.length - 1 ? 0 : prev + 1));
+    }, 5000);
+
+    return () => clearTimeout(timeoutRef.current);
+  }, [currentIndex, slides]);
+
+  const prevSlide = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setCurrentIndex(prev => (prev === 0 ? slides.length - 1 : prev - 1));
+  };
+
+  const nextSlide = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setCurrentIndex(prev => (prev === slides.length - 1 ? 0 : prev + 1));
+  };
+
+  // ---------------- Scroll Animation ----------------
   const handleScrollAnimation = () => {
     const elements = document.querySelectorAll(".animate-scroll");
-    elements.forEach((el) => {
+    elements.forEach(el => {
       const rect = el.getBoundingClientRect();
       if (rect.top <= window.innerHeight * 0.85) {
         el.classList.add("opacity-100", "translate-y-0");
@@ -56,33 +77,7 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScrollAnimation);
   }, []);
 
-  // Autoplay slider
-  useEffect(() => {
-    if (slides.length === 0) return;
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-    const delay = slides[currentIndex].media_type === "video" ? 20000 : 5000;
-
-    timeoutRef.current = setTimeout(() => {
-      setCurrentIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-    }, delay);
-
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [currentIndex, slides]);
-
-  const prevSlide = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setCurrentIndex((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  };
-
-  const nextSlide = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setCurrentIndex((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
-  };
-
-  // Fetch products
+  // ---------------- Fetch Products ----------------
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -101,115 +96,72 @@ export default function Home() {
     fetchProducts();
   }, []);
 
+  const handleViewMore = () => router.push("/products");
+
+  // ✨ debug: إذا لا توجد صور، أظهر رسالة
+  if (slides.length === 0)
+    return <div>No slides found! Check Supabase console and image_url column.</div>;
+
   return (
-    <div className="w-full">
-      {/* Slider */}
-      <div className="relative w-full mt-[20px] sm:mt-[40px] h-[300px] sm:h-[400px] overflow-hidden group">
-        <div className="mt-5 md:mt-3">
-          <div
-            className="flex gap-[20px] transition-transform duration-700 ease-in-out"
-            style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-          >
-            {slides.map((slide, idx) => (
-              <div
-                key={idx}
-                className="flex-shrink-0 w-full h-[300px] sm:h-[400px] rounded-[10px] overflow-hidden"
-              >
-                {slide.media_type === "video" ? (
-                  <video
-                    src={slide.media_url}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
+    <div className="w-full mt-10">
+      {/* ---------------- Slider ---------------- */}
+      <div className="flex items-center justify-center p-4">
+        <div className="max-w-6xl w-full">
+          <div className="relative overflow-hidden rounded-2xl shadow-2xl">
+            <div
+              className="flex transition-transform duration-700 ease-in-out"
+              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+            >
+              {slides.map((slide, index) => (
+                <div
+                  key={slide.id}
+                  className="w-full flex-shrink-0 flex justify-center items-center"
+                >
                   <img
                     src={slide.media_url}
-                    alt={`Slide ${idx}`}
-                    className="object-cover w-full h-full"
+                    alt={slide.title || `Slide ${index + 1}`}
+                    className="w-full h-96 md:h-[600px] object-cover"
                   />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+                </div>
+              ))}
+            </div>
 
-        {/* Arrows */}
-        <button
-          onClick={prevSlide}
-          aria-label="Previous slide"
-          className="absolute top-1/2 left-4 -translate-y-1/2 
-             w-10 h-10 sm:w-12 sm:h-12 
-             bg-black/40 hover:bg-black/60 
-             rounded-full shadow-lg 
-             flex items-center justify-center 
-             transition-all duration-300 z-10"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2.5}
-            stroke="white"
-            className="w-5 h-5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
-
-        <button
-          onClick={nextSlide}
-          aria-label="Next slide"
-          className="absolute top-1/2 right-4 -translate-y-1/2 
-             w-10 h-10 sm:w-12 sm:h-12 
-             bg-black/40 hover:bg-black/60 
-             rounded-full shadow-lg 
-             flex items-center justify-center 
-             transition-all duration-300 z-10"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2.5}
-            stroke="white"
-            className="w-5 h-5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
-
-        {/* Dots */}
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-3 z-10">
-          {slides.map((_, idx) => (
             <button
-              key={idx}
-              onClick={() => setCurrentIndex(idx)}
-              className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all duration-300 cursor-pointer ${
-                currentIndex === idx
-                  ? "bg-black scale-125 shadow-lg"
-                  : "bg-gray-300 hover:bg-gray-400"
-              }`}
-            />
-          ))}
+              onClick={prevSlide}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-3 rounded-full shadow-lg transition-all hover:scale-110"
+            >
+              <ChevronLeft className="w-6 h-6 text-gray-800" />
+            </button>
+
+            <button
+              onClick={nextSlide}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-3 rounded-full shadow-lg transition-all hover:scale-110"
+            >
+              <ChevronRight className="w-6 h-6 text-gray-800" />
+            </button>
+
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`transition-all duration-300 rounded-full ${
+                    currentIndex === index
+                      ? "bg-white w-8 h-3"
+                      : "bg-white/50 w-3 h-3 hover:bg-white/75"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Other Components */}
+      {/* ---------------- Other Components ---------------- */}
       <NewCollection />
       <HomeshopNow />
 
-      {/* Header + View More */}
+      {/* ---------------- Products Header ---------------- */}
       <div className="w-full flex flex-col items-center justify-center px-4 mb-10">
         <div className="flex items-center w-full max-w-6xl gap-4 sm:gap-8">
           <hr className="flex-1 border-t border-[#dcdcdc]" />
@@ -221,14 +173,14 @@ export default function Home() {
         <div className="mt-2 mr-6">
           <span
             onClick={handleViewMore}
-            className="cursor-pointer  text-sm sm:text-base font-medium uppercase tracking-wide hover:underline"
+            className="cursor-pointer text-sm sm:text-base font-medium uppercase tracking-wide hover:underline"
           >
             View More
           </span>
         </div>
       </div>
 
-      {/* Products Section */}
+      {/* ---------------- Products Section ---------------- */}
       <div className="flex justify-center w-full">
         {loading ? (
           <p>Loading products...</p>
