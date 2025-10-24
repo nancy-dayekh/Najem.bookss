@@ -122,7 +122,7 @@ export default function DisplayProducts() {
         </div>
 
         {/* Products Section */}
-        <div className="lg:col-span-9 w-full bg-red-800">
+        <div className="lg:col-span-9 w-full">
           <Products products={products} loading={loading} />
         </div>
       </div>
