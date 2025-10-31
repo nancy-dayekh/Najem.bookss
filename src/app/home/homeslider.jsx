@@ -89,19 +89,19 @@ const HeroHeader = () => {
       </div>
 
       {/* RIGHT SIDE (IMAGE SLIDER) */}
-      <div className="relative w-full h-[280px] sm:h-[380px] md:h-[480px] lg:h-full flex items-center justify-center">
+      <div className="relative w-full h-[260px] sm:h-[360px] md:h-[480px] lg:h-full flex items-center justify-center px-4 sm:px-0">
         {slides.length > 0 && slides[currentIndex] ? (
           <img
             src={slides[currentIndex].media_url}
             alt={slides[currentIndex].title || `Slide ${currentIndex + 1}`}
-            className="w-full h-full object-cover rounded-l-3xl lg:rounded-none transition-all duration-700 opacity-90 hover:opacity-100"
+            className="w-full h-full object-cover rounded-3xl sm:rounded-3xl lg:rounded-none transition-all duration-700 shadow-lg"
           />
         ) : (
           <p className="text-gray-500 text-lg">Loading slides...</p>
         )}
 
-        {/* Overlay gradient effect */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#E6EEFF]/50 to-transparent"></div>
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#E6EEFF]/60 to-transparent rounded-3xl sm:rounded-3xl lg:rounded-none"></div>
       </div>
     </section>
   );
